@@ -3,6 +3,8 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 
 import { palette } from '@/constants/fire-theme';
 import { useAuth } from '@/hooks/use-auth';
+import { upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
+import { fireResult, household } from '@/lib/sampleData';
 
 export function AuthCard() {
   const { isConfigured, isLoading, session, signInWithEmail, signOut, user } = useAuth();
@@ -37,6 +39,31 @@ export function AuthCard() {
     }
   }
 
+  async function handleSyncSnapshot() {
+    if (!user) {
+      return;
+    }
+
+    setMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await upsertProfile(user.id, user.email ?? null);
+      const householdId = await upsertHouseholdSummary(user.id, household);
+      await upsertSharedMonthlySnapshot({
+        userId: user.id,
+        householdId,
+        yearMonth: '2026-05',
+        fireResult,
+      });
+      setMessage('공유용 월간 스냅샷을 저장했어요.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '스냅샷 저장에 실패했어요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   if (isLoading) {
     return (
       <View style={styles.card}>
@@ -59,6 +86,9 @@ export function AuthCard() {
       <View style={styles.card}>
         <Text style={styles.label}>로그인됨</Text>
         <Text style={styles.title}>{user?.email ?? 'FIRE 사용자'}</Text>
+        <Pressable style={styles.button} onPress={handleSyncSnapshot} disabled={isSubmitting}>
+          <Text style={styles.buttonText}>{isSubmitting ? '저장 중' : '이번 달 스냅샷 저장'}</Text>
+        </Pressable>
         <Pressable style={styles.button} onPress={handleSignOut} disabled={isSubmitting}>
           <Text style={styles.buttonText}>로그아웃</Text>
         </Pressable>

@@ -43,6 +43,8 @@ export async function upsertHouseholdSummary(userId: string, household: Househol
       withdrawal_rate: household.settings.withdrawalRate,
       expected_annual_return: household.settings.expectedAnnualReturn,
       updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'owner_id',
     })
     .select('id')
     .single();

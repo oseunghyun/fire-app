@@ -24,6 +24,10 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 Run [supabase/schema.sql](../supabase/schema.sql) in the Supabase SQL editor.
 
+If you already ran an older version of the schema, also run:
+
+- [supabase/migrations/001_households_owner_unique.sql](../supabase/migrations/001_households_owner_unique.sql)
+
 The schema includes:
 
 - `profiles`
@@ -42,6 +46,8 @@ For production, add these later:
 - Apple sign in for iOS App Store release
 - Google sign in for Android and optional iOS
 - `fireapp://auth/callback` as a redirect URL
+
+Magic-link auth already uses `fireapp://auth/callback`.
 
 ## 4. Privacy Rule
 

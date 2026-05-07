@@ -17,7 +17,8 @@ create table public.households (
   withdrawal_rate numeric not null,
   expected_annual_return numeric not null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  unique (owner_id)
 );
 
 create table public.monthly_snapshots (
