@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { AuthCard } from '@/components/auth-card';
 import { Header, MascotCluster, MountainScene, ProgressBar, ScreenShell, SectionCard, SmallStat } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
 import { formatFireDistance, formatPercent } from '@/lib/fireCalculator';
@@ -31,6 +32,8 @@ export default function HomeScreen() {
           <SmallStat icon="savings" label="이번 달 저축률" value={formatPercent(fireResult.savingsRate)} />
           <SmallStat icon="groups" label="크루 내 순위" value="3위" />
         </View>
+
+        <AuthCard />
 
         <SectionCard style={styles.onboardingCard}>
           <Text style={styles.brand}>FIRE<Text style={styles.brandDot}>.</Text></Text>

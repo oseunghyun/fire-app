@@ -1,50 +1,27 @@
-# Welcome to your Expo app 👋
+# FIRE
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+파이어족 가능성 분석 앱 프로토타입입니다. Expo Router 기반 React Native 앱으로, 가구별 FIRE 계산, 월간 트래킹, 크루 랭킹, AI 리포트 화면을 포함합니다.
 
-## Get started
+## Run
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+npm install
+npm run start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Supabase
 
-## Learn more
+Supabase Auth와 DB 연결 준비가 포함되어 있습니다.
 
-To learn more about developing your project with Expo, look at the following resources:
+1. `.env.example`을 `.env`로 복사합니다.
+2. Supabase URL과 anon key를 넣습니다.
+3. `supabase/schema.sql`을 Supabase SQL editor에서 실행합니다.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+자세한 내용은 [docs/supabase-setup.md](docs/supabase-setup.md)를 확인하세요.
 
-## Join the community
+## Privacy Model
 
-Join our community of developers creating universal apps.
+서버에는 크루/랭킹용 공유 지표만 저장합니다.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- 저장 가능: 저축률, 달성률, FIRE까지 남은 개월, 목표 연도
+- 로컬 보관: 실제 자산, 소득, 지출 상세
