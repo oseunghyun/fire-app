@@ -1,98 +1,126 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Header, MascotCluster, MountainScene, ProgressBar, ScreenShell, SectionCard, SmallStat } from '@/components/fire-ui';
+import { palette } from '@/constants/fire-theme';
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ScreenShell>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Header eyebrow="홈 대시보드" title={'11년 4개월'} />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <SectionCard style={styles.countdownCard}>
+          <Text style={styles.cardLabel}>파이어까지 남은 시간</Text>
+          <ProgressBar value={48} />
+          <View style={styles.metricRow}>
+            <Text style={styles.bigMetric}>48%</Text>
+            <Text style={styles.metricLabel}>목표 달성률</Text>
+          </View>
+          <View style={styles.rewardNote}>
+            <Text style={styles.rewardText}>이번 달 저축으로 2개월 단축됐어요.</Text>
+          </View>
+        </SectionCard>
+
+        <SectionCard accent="#F4FBEF" style={styles.sceneCard}>
+          <MountainScene />
+        </SectionCard>
+
+        <View style={styles.statsRow}>
+          <SmallStat icon="savings" label="이번 달 저축률" value="43%" />
+          <SmallStat icon="groups" label="크루 내 순위" value="3위" />
+        </View>
+
+        <SectionCard style={styles.onboardingCard}>
+          <Text style={styles.brand}>FIRE<Text style={styles.brandDot}>.</Text></Text>
+          <Text style={styles.onboardingTitle}>우리 가족, 언제 파이어 가능할까?</Text>
+          <Text style={styles.onboardingBody}>
+            가구원별 수입과 지출을 모아 은퇴 가능 시점을 계산하고, 매달 자산 변화로 여정을 다시 확인합니다.
+          </Text>
+          <MascotCluster />
+        </SectionCard>
+      </ScrollView>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  content: {
+    paddingBottom: 112,
+  },
+  countdownCard: {
+    marginTop: 12,
+  },
+  cardLabel: {
+    color: palette.muted,
+    fontSize: 14,
+    fontWeight: '900',
+    marginBottom: 18,
+  },
+  metricRow: {
+    alignItems: 'flex-end',
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    marginTop: 18,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  bigMetric: {
+    color: palette.ink,
+    fontSize: 58,
+    fontWeight: '900',
+    letterSpacing: 0,
+    lineHeight: 62,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  metricLabel: {
+    color: palette.muted,
+    fontSize: 14,
+    fontWeight: '900',
+    paddingBottom: 10,
+  },
+  rewardNote: {
+    backgroundColor: '#F5F2EA',
+    borderRadius: 16,
+    marginTop: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  rewardText: {
+    color: palette.coral,
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  sceneCard: {
+    padding: 12,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginHorizontal: 20,
+    marginTop: 14,
+  },
+  onboardingCard: {
+    overflow: 'hidden',
+  },
+  brand: {
+    color: palette.ink,
+    fontSize: 56,
+    fontWeight: '900',
+    letterSpacing: 0,
+    lineHeight: 60,
+  },
+  brandDot: {
+    color: palette.coral,
+  },
+  onboardingTitle: {
+    color: palette.ink,
+    fontSize: 27,
+    fontWeight: '900',
+    lineHeight: 35,
+    marginTop: 12,
+  },
+  onboardingBody: {
+    color: '#4D4B46',
+    fontSize: 16,
+    fontWeight: '700',
+    lineHeight: 25,
+    marginTop: 12,
   },
 });

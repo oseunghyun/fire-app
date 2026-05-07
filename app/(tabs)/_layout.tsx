@@ -1,33 +1,56 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { palette } from '@/constants/fire-theme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: palette.ink,
+        tabBarInactiveTintColor: palette.muted,
+        tabBarStyle: {
+          backgroundColor: palette.paper,
+          borderTopWidth: 0,
+          height: 86,
+          paddingTop: 8,
+          paddingBottom: 22,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '800',
+        },
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: '홈',
+          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="home-filled" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="tracking"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: '트래킹',
+          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="show-chart" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="crew"
+        options={{
+          title: '크루',
+          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="groups" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="ai"
+        options={{
+          title: 'AI',
+          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="auto-awesome" color={color} />,
         }}
       />
     </Tabs>
