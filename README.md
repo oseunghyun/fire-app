@@ -23,6 +23,12 @@ Vercel settings:
 - Output directory: `dist`
 - Environment variables: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 
+Supabase Auth redirect URL for Vercel:
+
+```txt
+https://your-vercel-domain.vercel.app/auth.html
+```
+
 ## Supabase
 
 Supabase Auth와 DB 연결 준비가 포함되어 있습니다.

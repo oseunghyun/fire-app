@@ -11,5 +11,5 @@ export function getAuthRedirectUrl() {
     return nativeRedirectUrl;
   }
 
-  return `${window.location.origin}/auth`;
+  return `${window.location.origin}/auth.html`;
 }

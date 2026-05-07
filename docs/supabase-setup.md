@@ -49,8 +49,8 @@ For production, add these later:
 
 Magic-link auth uses:
 
-- Web: `https://your-vercel-domain.vercel.app/auth`
-- Local web: `http://localhost:8081/auth`
+- Web: `https://your-vercel-domain.vercel.app/auth.html`
+- Local web: `http://localhost:8081/auth.html`
 - Native: `fireapp://auth/callback`
 
 Add all active URLs to Supabase Auth redirect allow list.
