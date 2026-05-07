@@ -14,13 +14,15 @@ type AuthState = {
 
 export function useAuth(): AuthState {
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(isSupabaseConfigured);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
       setIsLoading(false);
       return;
     }
+
+    setIsLoading(true);
 
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);

@@ -99,7 +99,7 @@ export function AuthCard() {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.label}>계정 연결</Text>
+        <Text style={styles.label}>{isLoading ? '세션 확인 중' : '계정 연결'}</Text>
       <Text style={styles.title}>이메일로 시작하기</Text>
       <TextInput
         autoCapitalize="none"

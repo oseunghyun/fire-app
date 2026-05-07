@@ -12,6 +12,8 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Header eyebrow="홈 대시보드" title={formatFireDistance(fireResult.monthsToFire)} />
 
+        <AuthCard />
+
         <SectionCard style={styles.countdownCard}>
           <Text style={styles.cardLabel}>파이어까지 남은 시간</Text>
           <ProgressBar value={fireResult.achievementRate} />
@@ -32,8 +34,6 @@ export default function HomeScreen() {
           <SmallStat icon="savings" label="이번 달 저축률" value={formatPercent(fireResult.savingsRate)} />
           <SmallStat icon="groups" label="크루 내 순위" value="3위" />
         </View>
-
-        <AuthCard />
 
         <SectionCard style={styles.onboardingCard}>
           <Text style={styles.brand}>FIRE<Text style={styles.brandDot}>.</Text></Text>
