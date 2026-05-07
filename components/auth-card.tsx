@@ -7,7 +7,7 @@ import { upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } fr
 import { fireResult, household } from '@/lib/sampleData';
 
 export function AuthCard() {
-  const { isConfigured, isLoading, session, signInWithEmail, signOut, user } = useAuth();
+  const { isConfigured, isLoading, session, signInWithEmail, signInWithPassword, signOut, user } = useAuth();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,6 +21,20 @@ export function AuthCard() {
       setMessage('로그인 링크를 이메일로 보냈어요.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : '로그인 요청에 실패했어요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleTestLogin() {
+    setMessage('');
+    setIsSubmitting(true);
+
+    try {
+      // 테스트 계정 정보 (Supabase 대시보드에서 이 계정을 생성해야 합니다)
+      await signInWithPassword('test@test.com', 'password123');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '테스트 로그인에 실패했어요.');
     } finally {
       setIsSubmitting(false);
     }
@@ -113,6 +127,15 @@ export function AuthCard() {
       <Pressable style={styles.button} onPress={handleSubmit} disabled={!email.trim() || isSubmitting}>
         <Text style={styles.buttonText}>{isSubmitting ? '전송 중' : '로그인 링크 받기'}</Text>
       </Pressable>
+
+      <Pressable 
+        style={[styles.button, styles.testButton]} 
+        onPress={handleTestLogin} 
+        disabled={isSubmitting}
+      >
+        <Text style={styles.buttonText}>테스트 계정으로 즉시 로그인</Text>
+      </Pressable>
+
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
   );
@@ -170,6 +193,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '900',
+  },
+  testButton: {
+    backgroundColor: palette.coral,
+    marginTop: 8,
   },
   message: {
     color: palette.coral,

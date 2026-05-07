@@ -10,6 +10,7 @@ type AuthState = {
   session: Session | null;
   user: User | null;
   signInWithEmail: (email: string) => Promise<void>;
+  signInWithPassword: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -48,7 +49,23 @@ export function useAuth(): AuthState {
       email,
       options: {
         emailRedirectTo: getAuthRedirectUrl(),
+        shouldCreateUser: true,
       },
+    });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async function signInWithPassword(email: string, password: string) {
+    if (!supabase) {
+      throw new Error('Supabase environment variables are not configured.');
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
     if (error) {
@@ -74,6 +91,7 @@ export function useAuth(): AuthState {
     session,
     user: session?.user ?? null,
     signInWithEmail,
+    signInWithPassword,
     signOut,
   };
 }

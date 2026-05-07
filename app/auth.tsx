@@ -1,10 +1,20 @@
+import { router } from 'expo-router';
+import { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 
 import { AuthCard } from '@/components/auth-card';
 import { MascotCluster, ScreenShell, SectionCard } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function AuthScreen() {
+  const { session } = useAuth();
+
+  useEffect(() => {
+    if (session) {
+      router.replace('/');
+    }
+  }, [session]);
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
