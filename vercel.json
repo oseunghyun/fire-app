@@ -2,5 +2,24 @@
   "buildCommand": "npm run build:web",
   "outputDirectory": "dist",
   "framework": null,
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/auth",
+      "destination": "/auth.html"
+    },
+    {
+      "source": "/tracking",
+      "destination": "/tracking.html"
+    },
+    {
+      "source": "/crew",
+      "destination": "/crew.html"
+    },
+    {
+      "source": "/ai",
+      "destination": "/ai.html"
+    }
+  ]
 }
