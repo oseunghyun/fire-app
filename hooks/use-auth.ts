@@ -1,6 +1,7 @@
 import { Session, User } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 
+import { getAuthRedirectUrl } from '@/lib/authRedirect';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 type AuthState = {
@@ -46,7 +47,7 @@ export function useAuth(): AuthState {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: 'fireapp://auth/callback',
+        emailRedirectTo: getAuthRedirectUrl(),
       },
     });
 

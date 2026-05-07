@@ -47,7 +47,13 @@ For production, add these later:
 - Google sign in for Android and optional iOS
 - `fireapp://auth/callback` as a redirect URL
 
-Magic-link auth already uses `fireapp://auth/callback`.
+Magic-link auth uses:
+
+- Web: `https://your-vercel-domain.vercel.app/auth`
+- Local web: `http://localhost:8081/auth`
+- Native: `fireapp://auth/callback`
+
+Add all active URLs to Supabase Auth redirect allow list.
 
 ## 4. Privacy Rule
 

@@ -9,6 +9,20 @@ npm install
 npm run start
 ```
 
+## Web Deploy
+
+This project is ready for Vercel static deployment.
+
+```sh
+npm run build:web
+```
+
+Vercel settings:
+
+- Build command: `npm run build:web`
+- Output directory: `dist`
+- Environment variables: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+
 ## Supabase
 
 Supabase Auth와 DB 연결 준비가 포함되어 있습니다.
