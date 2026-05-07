@@ -2,27 +2,25 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { FlameMark, Header, ProgressBar, ScreenShell, SectionCard } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { formatPercent } from '@/lib/fireCalculator';
+import { crewRanking, familyContribution } from '@/lib/sampleData';
 
-const ranking = [
-  ['1', '린파이어22', '51%'],
-  ['2', '모아가는집', '46%'],
-  ['3', '우리집', '43%'],
-  ['4', '느린은퇴', '39%'],
-];
+const myCrewRank = crewRanking.find((member) => member.name === '우리집') ?? crewRanking[2];
+const crewLeaderGap = Math.max(0, crewRanking[0].savingsRate - myCrewRank.savingsRate);
 
 export default function CrewScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="파이어 크루" title="내 순위 3위" />
+        <Header eyebrow="파이어 크루" title={`내 순위 ${myCrewRank.rank}위`} />
 
         <SectionCard accent="#F4FBEF" style={styles.hero}>
           <View style={styles.heroCopy}>
             <Text style={styles.label}>30대 맞벌이 크루</Text>
             <Text style={styles.heroTitle}>금액은 숨기고, 속도만 공유</Text>
-            <Text style={styles.heroBody}>1위보다 7%p 낮아요. 이번 달 식비 18만원만 줄이면 2위권.</Text>
+            <Text style={styles.heroBody}>1위보다 {crewLeaderGap}%p 낮아요. 이번 달 식비 18만원만 줄이면 2위권.</Text>
           </View>
-          <FlameMark size={76} label="3" />
+          <FlameMark size={76} label={`${myCrewRank.rank}`} />
         </SectionCard>
 
         <SectionCard>
@@ -30,25 +28,23 @@ export default function CrewScreen() {
             <Text style={styles.sectionTitle}>이달 저축률 랭킹</Text>
             <Text style={styles.label}>금액 비공개</Text>
           </View>
-          {ranking.map(([rank, name, rate]) => (
-            <View key={rank} style={[styles.rankRow, rank === '3' ? styles.mine : null]}>
+          {crewRanking.map(({ rank, name, savingsRate }) => (
+            <View key={rank} style={[styles.rankRow, rank === 3 ? styles.mine : null]}>
               <Text style={styles.rankBadge}>{rank}</Text>
               <Text style={styles.rankName}>{name}</Text>
-              <Text style={styles.rankRate}>{rate}</Text>
+              <Text style={styles.rankRate}>{formatPercent(savingsRate)}</Text>
             </View>
           ))}
         </SectionCard>
 
         <SectionCard>
           <Text style={styles.sectionTitle}>가족 크루 달성률</Text>
-          <View style={styles.memberRow}>
-            <Text style={styles.memberName}>나</Text>
-            <ProgressBar value={52} color={palette.blue} />
-          </View>
-          <View style={styles.memberRow}>
-            <Text style={styles.memberName}>배우자</Text>
-            <ProgressBar value={44} color={palette.green} />
-          </View>
+          {familyContribution.map((member, index) => (
+            <View key={member.id} style={styles.memberRow}>
+              <Text style={styles.memberName}>{member.name}</Text>
+              <ProgressBar value={member.assetShare} color={index === 0 ? palette.blue : palette.green} />
+            </View>
+          ))}
         </SectionCard>
 
         <View style={styles.chatPreview}>

@@ -2,22 +2,24 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Header, MascotCluster, MountainScene, ProgressBar, ScreenShell, SectionCard, SmallStat } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { formatFireDistance, formatPercent } from '@/lib/fireCalculator';
+import { fireResult } from '@/lib/sampleData';
 
 export default function HomeScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="홈 대시보드" title={'11년 4개월'} />
+        <Header eyebrow="홈 대시보드" title={formatFireDistance(fireResult.monthsToFire)} />
 
         <SectionCard style={styles.countdownCard}>
           <Text style={styles.cardLabel}>파이어까지 남은 시간</Text>
-          <ProgressBar value={48} />
+          <ProgressBar value={fireResult.achievementRate} />
           <View style={styles.metricRow}>
-            <Text style={styles.bigMetric}>48%</Text>
+            <Text style={styles.bigMetric}>{formatPercent(fireResult.achievementRate)}</Text>
             <Text style={styles.metricLabel}>목표 달성률</Text>
           </View>
           <View style={styles.rewardNote}>
-            <Text style={styles.rewardText}>이번 달 저축으로 2개월 단축됐어요.</Text>
+            <Text style={styles.rewardText}>이번 달 저축으로 {fireResult.savedMonthsThisMonth}개월 단축됐어요.</Text>
           </View>
         </SectionCard>
 
@@ -26,7 +28,7 @@ export default function HomeScreen() {
         </SectionCard>
 
         <View style={styles.statsRow}>
-          <SmallStat icon="savings" label="이번 달 저축률" value="43%" />
+          <SmallStat icon="savings" label="이번 달 저축률" value={formatPercent(fireResult.savingsRate)} />
           <SmallStat icon="groups" label="크루 내 순위" value="3위" />
         </View>
 

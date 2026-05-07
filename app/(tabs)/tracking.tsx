@@ -2,6 +2,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AssetChart, Header, PillButton, ScreenShell, SectionCard } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { formatPercent, formatWon } from '@/lib/fireCalculator';
+import { fireResult } from '@/lib/sampleData';
 
 export default function TrackingScreen() {
   return (
@@ -11,7 +13,7 @@ export default function TrackingScreen() {
 
         <SectionCard>
           <Text style={styles.label}>이번 달 총 금융자산</Text>
-          <Text style={styles.amount}>₩ 184,200,000</Text>
+          <Text style={styles.amount}>{formatWon(fireResult.currentAssets)}</Text>
           <PillButton label="금액 수정하기" />
         </SectionCard>
 
@@ -25,10 +27,10 @@ export default function TrackingScreen() {
 
         <View style={styles.rewardRow}>
           <View style={styles.stamp}>
-            <Text style={styles.stampText}>2개월{'\n'}단축!</Text>
+            <Text style={styles.stampText}>{fireResult.savedMonthsThisMonth}개월{'\n'}단축!</Text>
           </View>
           <Text style={styles.rewardCopy}>
-            이번 달 저축률은 43%. 가족 크루 평균보다 6%p 높아요.
+            이번 달 저축률은 {formatPercent(fireResult.savingsRate)}. 가족 크루 평균보다 6%p 높아요.
           </Text>
         </View>
 

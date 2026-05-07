@@ -2,6 +2,10 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { FlameMark, Header, PillButton, ScreenShell, SectionCard } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { formatCompactWon, formatPercent } from '@/lib/fireCalculator';
+import { fireResult, household } from '@/lib/sampleData';
+
+const firstChild = household.children[0];
 
 export default function AiScreen() {
   return (
@@ -13,12 +17,12 @@ export default function AiScreen() {
           <FlameMark size={64} />
           <View style={styles.coachCopy}>
             <Text style={styles.label}>이번 달 한 줄 평가</Text>
-            <Text style={styles.coachText}>이 속도면 목표 은퇴 시점을 14개월 앞당길 수 있어요.</Text>
+            <Text style={styles.coachText}>이 속도면 목표 은퇴 시점을 {fireResult.savedMonthsThisMonth + 12}개월 앞당길 수 있어요.</Text>
           </View>
         </SectionCard>
 
-        <ReportItem label="리스크 01" text="자녀 교육비가 6년 뒤부터 월 80만원 증가할 가능성이 큽니다." />
-        <ReportItem label="전략 02" text="저축률을 43%에서 47%로 올리면 파이어까지 8개월 더 줄어듭니다." />
+        <ReportItem label="리스크 01" text={`${firstChild.name} 독립 전까지 월 ${formatCompactWon(firstChild.monthlyCost)} 지출이 유지됩니다. 교육비 상승분은 별도 버퍼로 보는 편이 안전합니다.`} />
+        <ReportItem label="전략 02" text={`저축률을 ${formatPercent(fireResult.savingsRate)}에서 ${formatPercent(fireResult.savingsRate + 4)}로 올리면 파이어까지 8개월 더 줄어듭니다.`} />
         <ReportItem label="한국 맞춤 팁" text="IRP와 ISA 한도를 분리해서 연말정산 환급 효과를 먼저 확보하세요." />
 
         <View style={styles.buttonWrap}>
