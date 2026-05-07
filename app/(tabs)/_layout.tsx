@@ -9,13 +9,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: palette.ink,
-        tabBarInactiveTintColor: palette.muted,
+        tabBarActiveTintColor: palette.primary,
+        tabBarInactiveTintColor: palette.textSecondary,
         tabBarStyle: {
           backgroundColor: palette.paper,
           borderTopWidth: 0,
-          height: 86,
-          paddingTop: 8,
+          height: 92,
+          paddingTop: 10,
           paddingBottom: 22,
         },
         tabBarLabelStyle: {
@@ -40,6 +40,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="feed"
+        options={{
+          title: '피드',
+          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="edit-note" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="crew"
         options={{
           title: '크루',
@@ -49,7 +56,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ai"
         options={{
-          title: 'AI',
+          title: '리포트',
           tabBarIcon: ({ color }) => <MaterialIcons size={26} name="auto-awesome" color={color} />,
         }}
       />

@@ -1,43 +1,36 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { AssetChart, Header, PillButton, ScreenShell, SectionCard } from '@/components/fire-ui';
+import { FireMascot, HandDrawnCard, Header, PillButton, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
-import { formatPercent, formatWon } from '@/lib/fireCalculator';
+import { formatWon } from '@/lib/fireCalculator';
 import { fireResult } from '@/lib/sampleData';
 
 export default function TrackingScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="월간 트래킹" title="90초 입력" />
+        <Header eyebrow="월간 자산 입력" title="이번 달 총 금융자산은 얼마인가요?" />
 
-        <SectionCard>
-          <Text style={styles.label}>이번 달 총 금융자산</Text>
+        <HandDrawnCard style={styles.inputCard}>
+          <Text style={styles.subtle}>(부동산 제외)</Text>
           <Text style={styles.amount}>{formatWon(fireResult.currentAssets)}</Text>
-          <PillButton label="금액 수정하기" />
-        </SectionCard>
-
-        <SectionCard>
-          <View style={styles.chartHead}>
-            <Text style={styles.label}>자산 추세</Text>
-            <Text style={styles.greenText}>+4.8%</Text>
+          <View style={styles.quickButtons}>
+            <PillButton label="+100만원" />
+            <PillButton label="+500만원" />
+            <PillButton label="직접 입력" />
           </View>
-          <AssetChart />
-        </SectionCard>
+          <PillButton label="저장하고 분석하기 →" primary style={styles.cta} />
+        </HandDrawnCard>
 
-        <View style={styles.rewardRow}>
-          <View style={styles.stamp}>
-            <Text style={styles.stampText}>{fireResult.savedMonthsThisMonth}개월{'\n'}단축!</Text>
+        <HandDrawnCard accent={palette.softOrange} style={styles.helperCard} tilt={-1}>
+          <View style={styles.helperRow}>
+            <FireMascot size={64} mood="happy" />
+            <View style={styles.helperCopy}>
+              <Text style={styles.helperTitle}>입력하면 바로</Text>
+              <Text style={styles.helperBody}>단축 효과를 보여드릴게요!</Text>
+            </View>
           </View>
-          <Text style={styles.rewardCopy}>
-            이번 달 저축률은 {formatPercent(fireResult.savingsRate)}. 가족 크루 평균보다 6%p 높아요.
-          </Text>
-        </View>
-
-        <SectionCard accent="#FFF8F5">
-          <Text style={styles.sectionTitle}>다음 입력 알림</Text>
-          <Text style={styles.body}>매달 1일 오전 9시에 자산 업데이트를 요청합니다. 숫자 하나만 넣어도 파이어 거리를 다시 계산해요.</Text>
-        </SectionCard>
+        </HandDrawnCard>
       </ScrollView>
     </ScreenShell>
   );
@@ -45,73 +38,57 @@ export default function TrackingScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 112,
+    paddingBottom: 116,
   },
-  label: {
-    color: palette.muted,
-    fontSize: 14,
-    fontWeight: '900',
+  inputCard: {
+    alignItems: 'center',
+    paddingTop: 26,
+    paddingBottom: 22,
+  },
+  subtle: {
+    color: palette.textSecondary,
+    fontSize: 15,
+    fontWeight: '800',
   },
   amount: {
-    color: palette.ink,
-    fontSize: 34,
+    color: palette.textPrimary,
+    fontSize: 46,
     fontWeight: '900',
-    letterSpacing: 0,
-    marginBottom: 18,
-    marginTop: 12,
-  },
-  chartHead: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  greenText: {
-    color: palette.green,
-    fontSize: 16,
-    fontWeight: '900',
-  },
-  rewardRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 16,
-    marginHorizontal: 20,
-    marginTop: 22,
-  },
-  stamp: {
-    alignItems: 'center',
-    borderColor: palette.coral,
-    borderRadius: 48,
-    borderWidth: 3,
-    height: 96,
-    justifyContent: 'center',
-    transform: [{ rotate: '-8deg' }],
-    width: 96,
-  },
-  stampText: {
-    color: palette.coral,
-    fontSize: 21,
-    fontWeight: '900',
-    lineHeight: 24,
+    lineHeight: 54,
+    marginTop: 18,
     textAlign: 'center',
   },
-  rewardCopy: {
-    color: '#3E3B36',
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '800',
-    lineHeight: 25,
+  quickButtons: {
+    flexDirection: 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: 22,
   },
-  sectionTitle: {
-    color: palette.ink,
-    fontSize: 22,
+  cta: {
+    alignSelf: 'stretch',
+    marginTop: 24,
+  },
+  helperCard: {
+    marginTop: 18,
+  },
+  helperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  helperCopy: {
+    flex: 1,
+  },
+  helperTitle: {
+    color: palette.textPrimary,
+    fontSize: 20,
     fontWeight: '900',
   },
-  body: {
-    color: '#4D4B46',
+  helperBody: {
+    color: palette.textSecondary,
     fontSize: 16,
-    fontWeight: '700',
-    lineHeight: 25,
-    marginTop: 10,
+    fontWeight: '800',
+    marginTop: 6,
   },
 });

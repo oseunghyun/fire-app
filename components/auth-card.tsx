@@ -89,8 +89,9 @@ export function AuthCard() {
   if (!isConfigured) {
     return (
       <View style={styles.card}>
-        <Text style={styles.label}>Supabase 연결 대기</Text>
-        <Text style={styles.body}>`.env`에 Supabase URL과 anon key를 넣으면 로그인과 공유 스냅샷 저장이 활성화됩니다.</Text>
+        <Text style={styles.label}>연동 대기</Text>
+        <Text style={styles.title}>우리 가족 데이터 연결하기</Text>
+        <Text style={styles.body}>`.env`에 Supabase URL과 anon key를 넣으면 로그인과 공유 스냅샷 저장이 켜집니다.</Text>
       </View>
     );
   }
@@ -98,7 +99,7 @@ export function AuthCard() {
   if (session) {
     return (
       <View style={styles.card}>
-        <Text style={styles.label}>로그인됨</Text>
+        <Text style={styles.label}>연결 완료</Text>
         <Text style={styles.title}>{user?.email ?? 'FIRE 사용자'}</Text>
         <Pressable style={styles.button} onPress={handleSyncSnapshot} disabled={isSubmitting}>
           <Text style={styles.buttonText}>{isSubmitting ? '저장 중' : '이번 달 스냅샷 저장'}</Text>
@@ -113,7 +114,7 @@ export function AuthCard() {
 
   return (
     <View style={styles.card}>
-        <Text style={styles.label}>{isLoading ? '세션 확인 중' : '계정 연결'}</Text>
+      <Text style={styles.label}>{isLoading ? '세션 확인 중' : '계정 연결'}</Text>
       <Text style={styles.title}>이메일로 시작하기</Text>
       <TextInput
         autoCapitalize="none"
@@ -143,28 +144,28 @@ export function AuthCard() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFF8F5',
-    borderColor: palette.ink,
+    backgroundColor: palette.softCream,
+    borderColor: palette.cardLine,
     borderRadius: 24,
-    borderWidth: 2,
+    borderWidth: 1.5,
     marginHorizontal: 20,
     marginTop: 18,
     padding: 20,
   },
   label: {
-    color: palette.muted,
+    color: palette.textSecondary,
     fontSize: 14,
     fontWeight: '900',
   },
   title: {
-    color: palette.ink,
+    color: palette.textPrimary,
     fontSize: 23,
     fontWeight: '900',
     lineHeight: 30,
     marginTop: 8,
   },
   body: {
-    color: '#4D4B46',
+    color: palette.textSecondary,
     fontSize: 15,
     fontWeight: '700',
     lineHeight: 23,
@@ -172,10 +173,10 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#FFFFFF',
-    borderColor: palette.ink,
+    borderColor: palette.cardLine,
     borderRadius: 16,
-    borderWidth: 2,
-    color: palette.ink,
+    borderWidth: 1.5,
+    color: palette.textPrimary,
     fontSize: 16,
     fontWeight: '800',
     marginTop: 14,
@@ -184,8 +185,8 @@ const styles = StyleSheet.create({
   },
   button: {
     alignItems: 'center',
-    backgroundColor: palette.ink,
-    borderRadius: 999,
+    backgroundColor: palette.textPrimary,
+    borderRadius: 16,
     marginTop: 12,
     paddingVertical: 15,
   },
@@ -195,11 +196,11 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   testButton: {
-    backgroundColor: palette.coral,
+    backgroundColor: palette.primary,
     marginTop: 8,
   },
   message: {
-    color: palette.coral,
+    color: palette.primary,
     fontSize: 14,
     fontWeight: '800',
     lineHeight: 21,
