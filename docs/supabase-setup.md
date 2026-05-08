@@ -35,6 +35,8 @@ The schema includes:
 - `monthly_snapshots`
 - `crews`
 - `crew_members`
+- `feed_posts`
+- `feed_comments`
 - RLS policies
 
 ## 3. Auth Providers

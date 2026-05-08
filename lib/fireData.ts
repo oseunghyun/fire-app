@@ -1,4 +1,5 @@
 import { FireResult, Household } from '@/lib/fireCalculator';
+import { FeedMascotMood, FeedPost, normalizeFeedMascotMood } from '@/lib/householdInsights';
 import { supabase } from '@/lib/supabase';
 
 export type SharedSnapshotPayload = {
@@ -22,6 +23,17 @@ export type CrewSummary = {
   type: 'family' | 'anonymous';
   fireType: string | null;
   members: CrewMemberMetric[];
+};
+
+export type FeedPostPayload = {
+  userId: string;
+  crewId?: string | null;
+  authorNickname: string;
+  category: FeedPost['tag'];
+  title: string;
+  body?: string | null;
+  periodLabel?: string | null;
+  mascotMood?: FeedMascotMood;
 };
 
 export async function upsertProfile(userId: string, displayName?: string | null) {
@@ -264,4 +276,95 @@ export async function fetchMyFamilyCrew(userId: string): Promise<CrewSummary | n
       targetYear: member.target_year,
     })),
   };
+}
+
+export async function createFeedPost({
+  userId,
+  crewId,
+  authorNickname,
+  category,
+  title,
+  body,
+  periodLabel,
+  mascotMood = 'saving',
+}: FeedPostPayload) {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data, error } = await client
+    .from('feed_posts')
+    .insert({
+      crew_id: crewId ?? null,
+      user_id: userId,
+      author_nickname: authorNickname,
+      category,
+      title,
+      body: body ?? null,
+      period_label: periodLabel ?? null,
+      mascot_mood: mascotMood,
+      updated_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data.id;
+}
+
+export async function fetchFeedPosts(userId: string): Promise<FeedPost[]> {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data: memberships, error: membershipError } = await client.from('crew_members').select('crew_id').eq('user_id', userId);
+
+  if (membershipError) {
+    throw membershipError;
+  }
+
+  const crewIds = memberships.map((membership) => membership.crew_id);
+
+  let query = client
+    .from('feed_posts')
+    .select('id, category, title, period_label, likes_count, comments_count, mascot_mood, created_at')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (crewIds.length > 0) {
+    query = query.in('crew_id', crewIds);
+  } else {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return data.map((post) => ({
+    id: post.id,
+    tag: normalizeFeedTag(post.category),
+    title: post.title,
+    meta: post.period_label ?? '#크루근황',
+    likes: post.likes_count,
+    comments: post.comments_count,
+    mascot: normalizeFeedMascotMood(post.mascot_mood),
+  }));
+}
+
+function normalizeFeedTag(value: string): FeedPost['tag'] {
+  if (value === '달성 후기' || value === '고민' || value === '팁') {
+    return value;
+  }
+
+  return '팁';
 }

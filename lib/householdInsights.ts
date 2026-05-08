@@ -25,6 +25,8 @@ export type FeedPost = {
   mascot: 'winner' | 'tired' | 'saving' | 'surprised';
 };
 
+export type FeedMascotMood = FeedPost['mascot'];
+
 export function getHouseholdEyebrow(household: Household) {
   const typeLabel =
     household.type === 'single'
@@ -184,6 +186,14 @@ export function getFeedPosts(household: Household): FeedPost[] {
       mascot: 'saving',
     },
   ];
+}
+
+export function normalizeFeedMascotMood(value?: string | null): FeedMascotMood {
+  if (value === 'winner' || value === 'tired' || value === 'saving' || value === 'surprised') {
+    return value;
+  }
+
+  return 'saving';
 }
 
 function getNearestChildRisk(children: Child[]) {

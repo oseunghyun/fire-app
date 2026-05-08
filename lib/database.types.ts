@@ -150,6 +150,77 @@ export type Database = {
         };
         Relationships: [];
       };
+      feed_posts: {
+        Row: {
+          id: string;
+          crew_id: string | null;
+          user_id: string;
+          author_nickname: string;
+          category: string;
+          title: string;
+          body: string | null;
+          period_label: string | null;
+          mascot_mood: string;
+          likes_count: number;
+          comments_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          crew_id?: string | null;
+          user_id: string;
+          author_nickname: string;
+          category: string;
+          title: string;
+          body?: string | null;
+          period_label?: string | null;
+          mascot_mood?: string;
+          likes_count?: number;
+          comments_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          crew_id?: string | null;
+          author_nickname?: string;
+          category?: string;
+          title?: string;
+          body?: string | null;
+          period_label?: string | null;
+          mascot_mood?: string;
+          likes_count?: number;
+          comments_count?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      feed_comments: {
+        Row: {
+          id: string;
+          post_id: string;
+          user_id: string;
+          author_nickname: string;
+          body: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          user_id: string;
+          author_nickname: string;
+          body: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_nickname?: string;
+          body?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
