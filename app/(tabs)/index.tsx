@@ -13,6 +13,7 @@ import {
   SmallStat,
 } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { typography } from '@/constants/typography';
 import { formatFireDistance, formatPercent } from '@/lib/fireCalculator';
 import { fireResult } from '@/lib/sampleData';
 
@@ -86,13 +87,11 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: palette.textSecondary,
-    fontSize: 14,
-    fontWeight: '900',
+    ...typography.label,
   },
   progressValue: {
     color: palette.textPrimary,
-    fontSize: 24,
-    fontWeight: '900',
+    ...typography.numberMd,
   },
   statGrid: {
     flexDirection: 'row',
@@ -115,15 +114,11 @@ const styles = StyleSheet.create({
   storyTitle: {
     flex: 1,
     color: palette.textPrimary,
-    fontSize: 26,
-    fontWeight: '900',
-    lineHeight: 34,
+    ...typography.displayMd,
   },
   storyBody: {
     color: palette.textSecondary,
-    fontSize: 16,
-    fontWeight: '700',
-    lineHeight: 24,
+    ...typography.body,
     marginTop: 12,
   },
   storyMascots: {

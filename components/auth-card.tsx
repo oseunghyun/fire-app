@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { palette } from '@/constants/fire-theme';
+import { fontFamily, typography } from '@/constants/typography';
 import { useAuth } from '@/hooks/use-auth';
 import { upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
 import { fireResult, household } from '@/lib/sampleData';
@@ -154,21 +155,16 @@ const styles = StyleSheet.create({
   },
   label: {
     color: palette.textSecondary,
-    fontSize: 14,
-    fontWeight: '900',
+    ...typography.label,
   },
   title: {
     color: palette.textPrimary,
-    fontSize: 23,
-    fontWeight: '900',
-    lineHeight: 30,
+    ...typography.titleMd,
     marginTop: 8,
   },
   body: {
     color: palette.textSecondary,
-    fontSize: 15,
-    fontWeight: '700',
-    lineHeight: 23,
+    ...typography.bodySm,
     marginTop: 8,
   },
   input: {
@@ -178,7 +174,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     color: palette.textPrimary,
     fontSize: 16,
-    fontWeight: '800',
+    fontFamily: fontFamily.bodyStrong,
     marginTop: 14,
     paddingHorizontal: 14,
     paddingVertical: 13,
@@ -193,7 +189,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '900',
+    fontFamily: fontFamily.bodyBold,
   },
   testButton: {
     backgroundColor: palette.primary,
@@ -201,9 +197,7 @@ const styles = StyleSheet.create({
   },
   message: {
     color: palette.primary,
-    fontSize: 14,
-    fontWeight: '800',
-    lineHeight: 21,
+    ...typography.bodySm,
     marginTop: 10,
   },
 });

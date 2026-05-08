@@ -1,8 +1,27 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { PropsWithChildren, ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { palette, radius, shadow } from '@/constants/fire-theme';
+import { fontFamily, typography } from '@/constants/typography';
+
+const fireIdleAsset = require('@/assets/mascot/fire_idle.png') as ImageSourcePropType;
+const fireThinkAsset = require('@/assets/mascot/fire_think.png') as ImageSourcePropType;
+const iconsPackAsset = require('@/assets/icon/icons-pack.png') as ImageSourcePropType;
+
+const ICONS_PACK_WIDTH = 1536;
+const ICONS_PACK_HEIGHT = 1024;
+
+const spriteMap = {
+  fire: { x: 250, y: 165, width: 250, height: 300 },
+  saving: { x: 695, y: 185, width: 330, height: 255 },
+  crew: { x: 1060, y: 165, width: 360, height: 300 },
+  report: { x: 255, y: 610, width: 260, height: 325 },
+  goal: { x: 705, y: 640, width: 340, height: 260 },
+  rocket: { x: 1080, y: 615, width: 345, height: 315 },
+} as const;
+
+export type SpriteIconName = keyof typeof spriteMap;
 
 export function ScreenShell({ children }: PropsWithChildren) {
   return <View style={styles.screen}>{children}</View>;
@@ -135,38 +154,13 @@ export function FireMascot({
   mood?: 'happy' | 'spark' | 'cheer';
   withLog?: boolean;
 }) {
+  const source = mood === 'spark' ? fireThinkAsset : fireIdleAsset;
+  const visualWidth = size * 1.34;
+  const visualHeight = size * 1.44;
+
   return (
-    <View style={[styles.mascotWrap, { width: size * 1.3 }]}>
-      <View
-        style={[
-          styles.flameOuter,
-          {
-            width: size,
-            height: size * 1.08,
-            borderRadius: size * 0.34,
-          },
-        ]}>
-        <View
-          style={[
-            styles.flameInner,
-            {
-              width: size * 0.3,
-              height: size * 0.34,
-              top: size * 0.12,
-              borderRadius: size * 0.14,
-            },
-          ]}
-        />
-        <View style={[styles.eyeDot, { left: size * 0.28, top: size * 0.46, width: size * 0.08, height: size * 0.12, borderRadius: size * 0.04 }]} />
-        <View style={[styles.eyeDot, { right: size * 0.28, top: size * 0.46, width: size * 0.08, height: size * 0.12, borderRadius: size * 0.04 }]} />
-        <View
-          style={[
-            styles.mouth,
-            mood === 'spark' ? styles.sparkMouth : null,
-            { width: size * 0.24, height: size * 0.12, bottom: size * 0.18, borderRadius: size * 0.1 },
-          ]}
-        />
-      </View>
+    <View style={[styles.mascotWrap, { width: visualWidth, height: visualHeight }]}>
+      <Image source={source} style={{ width: visualWidth, height: visualHeight }} resizeMode="contain" />
       {mood === 'cheer' ? (
         <>
           <View style={[styles.sparkle, { left: 2, top: 12 }]} />
@@ -179,6 +173,47 @@ export function FireMascot({
           <View style={[styles.logStick, { marginLeft: -12, transform: [{ rotate: '10deg' }] }]} />
         </View>
       ) : null}
+    </View>
+  );
+}
+
+export function SpriteIcon({
+  name,
+  size = 28,
+  style,
+}: {
+  name: SpriteIconName;
+  size?: number;
+  style?: ViewStyle;
+}) {
+  const crop = spriteMap[name];
+  const scale = size / Math.max(crop.width, crop.height);
+  const scaledWidth = ICONS_PACK_WIDTH * scale;
+  const scaledHeight = ICONS_PACK_HEIGHT * scale;
+  const frameWidth = crop.width * scale;
+  const frameHeight = crop.height * scale;
+
+  return (
+    <View
+      style={[
+        styles.spriteFrame,
+        {
+          width: size,
+          height: size,
+        },
+        style,
+      ]}>
+      <Image
+        source={iconsPackAsset}
+        resizeMode="contain"
+        style={{
+          position: 'absolute',
+          width: scaledWidth,
+          height: scaledHeight,
+          left: -crop.x * scale + (size - frameWidth) / 2,
+          top: -crop.y * scale + (size - frameHeight) / 2,
+        }}
+      />
     </View>
   );
 }
@@ -311,14 +346,11 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: palette.textSecondary,
-    fontSize: 13,
-    fontWeight: '900',
+    ...typography.label,
   },
   title: {
     color: palette.textPrimary,
-    fontSize: 34,
-    fontWeight: '900',
-    lineHeight: 40,
+    ...typography.titleLg,
     marginTop: 5,
   },
   cardWrap: {
@@ -358,8 +390,7 @@ const styles = StyleSheet.create({
   },
   countdownEyebrow: {
     color: palette.textPrimary,
-    fontSize: 16,
-    fontWeight: '900',
+    ...typography.displayMd,
   },
   countdownMetricWrap: {
     alignItems: 'center',
@@ -367,9 +398,9 @@ const styles = StyleSheet.create({
   },
   countdownMetric: {
     color: palette.textPrimary,
-    fontSize: 54,
-    fontWeight: '900',
-    lineHeight: 64,
+    fontFamily: fontFamily.display,
+    fontSize: 50,
+    lineHeight: 58,
   },
   countdownMascotRow: {
     marginTop: 12,
@@ -392,43 +423,12 @@ const styles = StyleSheet.create({
   },
   speechText: {
     color: palette.textPrimary,
-    fontSize: 15,
-    fontWeight: '800',
+    ...typography.sticker,
     textAlign: 'center',
   },
   mascotWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  flameOuter: {
-    backgroundColor: palette.orange,
-    borderWidth: 2,
-    borderColor: palette.textPrimary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    transform: [{ rotate: '-2deg' }],
-  },
-  flameInner: {
-    position: 'absolute',
-    backgroundColor: palette.primary,
-    borderColor: palette.textPrimary,
-    borderWidth: 1.5,
-    transform: [{ rotate: '12deg' }],
-  },
-  eyeDot: {
-    position: 'absolute',
-    backgroundColor: palette.textPrimary,
-  },
-  mouth: {
-    position: 'absolute',
-    borderBottomWidth: 3,
-    borderColor: palette.textPrimary,
-  },
-  sparkMouth: {
-    width: 10,
-    borderRadius: 99,
-    borderBottomWidth: 0,
-    backgroundColor: palette.textPrimary,
   },
   sparkle: {
     position: 'absolute',
@@ -470,9 +470,7 @@ const styles = StyleSheet.create({
   highlightText: {
     flex: 1,
     color: palette.textPrimary,
-    fontSize: 15,
-    fontWeight: '800',
-    lineHeight: 22,
+    ...typography.body,
   },
   tape: {
     position: 'absolute',
@@ -514,8 +512,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     color: palette.textSecondary,
-    fontSize: 13,
-    fontWeight: '800',
+    ...typography.label,
   },
   pillTextActive: {
     color: '#FFFFFF',
@@ -539,8 +536,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: palette.textPrimary,
+    fontFamily: fontFamily.bodyBold,
     fontSize: 16,
-    fontWeight: '900',
   },
   buttonDarkText: {
     color: '#FFFFFF',
@@ -556,13 +553,17 @@ const styles = StyleSheet.create({
   },
   smallStatLabel: {
     color: palette.textSecondary,
+    fontFamily: fontFamily.bodyStrong,
     fontSize: 12,
-    fontWeight: '800',
   },
   smallStatValue: {
     color: palette.textPrimary,
+    fontFamily: fontFamily.bodyBold,
     fontSize: 18,
-    fontWeight: '900',
+  },
+  spriteFrame: {
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   chart: {
     height: 170,
@@ -631,8 +632,8 @@ const styles = StyleSheet.create({
   },
   rankMedalText: {
     color: palette.textPrimary,
+    fontFamily: fontFamily.bodyBold,
     fontSize: 15,
-    fontWeight: '900',
   },
   rankAvatar: {
     width: 36,
@@ -648,13 +649,13 @@ const styles = StyleSheet.create({
   rankName: {
     flex: 1,
     color: palette.textPrimary,
+    fontFamily: fontFamily.bodyBold,
     fontSize: 16,
-    fontWeight: '900',
   },
   rankValue: {
     color: palette.textSecondary,
+    fontFamily: fontFamily.bodyBold,
     fontSize: 17,
-    fontWeight: '900',
   },
   rankValueMine: {
     color: palette.primary,

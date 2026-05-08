@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { FireMascot, HandDrawnCard, Header, PillBadge, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { typography } from '@/constants/typography';
 
 const filters = ['전체', '달성 후기', '고민', '팁'];
 
@@ -99,8 +100,7 @@ const styles = StyleSheet.create({
   },
   meta: {
     color: palette.textSecondary,
-    fontSize: 12,
-    fontWeight: '800',
+    ...typography.label,
   },
   postBodyRow: {
     flexDirection: 'row',
@@ -113,9 +113,7 @@ const styles = StyleSheet.create({
   },
   postTitle: {
     color: palette.textPrimary,
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 28,
+    ...typography.titleMd,
   },
   postActions: {
     flexDirection: 'row',
@@ -129,7 +127,6 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: palette.textSecondary,
-    fontSize: 14,
-    fontWeight: '800',
+    ...typography.bodySm,
   },
 });

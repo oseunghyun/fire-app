@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { SpriteIcon } from '@/components/fire-ui';
 import { HapticTab } from '@/components/haptic-tab';
 import { palette } from '@/constants/fire-theme';
+import { fontFamily } from '@/constants/typography';
 
 export default function TabLayout() {
   return (
@@ -20,7 +21,7 @@ export default function TabLayout() {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '800',
+          fontFamily: fontFamily.bodyStrong,
         },
         headerShown: false,
         tabBarButton: HapticTab,
@@ -29,35 +30,35 @@ export default function TabLayout() {
         name="index"
         options={{
           title: '홈',
-          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="home-filled" color={color} />,
+          tabBarIcon: () => <SpriteIcon name="fire" size={28} />,
         }}
       />
       <Tabs.Screen
         name="tracking"
         options={{
           title: '트래킹',
-          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="show-chart" color={color} />,
+          tabBarIcon: () => <SpriteIcon name="goal" size={28} />,
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
           title: '피드',
-          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="edit-note" color={color} />,
+          tabBarIcon: () => <SpriteIcon name="report" size={28} />,
         }}
       />
       <Tabs.Screen
         name="crew"
         options={{
           title: '크루',
-          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="groups" color={color} />,
+          tabBarIcon: () => <SpriteIcon name="crew" size={28} />,
         }}
       />
       <Tabs.Screen
         name="ai"
         options={{
           title: '리포트',
-          tabBarIcon: ({ color }) => <MaterialIcons size={26} name="auto-awesome" color={color} />,
+          tabBarIcon: () => <SpriteIcon name="rocket" size={28} />,
         }}
       />
     </Tabs>

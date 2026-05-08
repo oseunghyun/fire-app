@@ -2,8 +2,9 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { HandDrawnCard, Header, ScreenShell } from '@/components/fire-ui';
+import { FireMascot, HandDrawnCard, Header, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { typography } from '@/constants/typography';
 
 const sections = [
   {
@@ -39,7 +40,7 @@ export default function AiScreen() {
         <HandDrawnCard accent="#FFF8F2" style={styles.loadingCard}>
           <View style={styles.loadingRow}>
             <View style={styles.robotBubble}>
-              <Text style={styles.robot}>🤖</Text>
+              <FireMascot size={52} mood="spark" />
             </View>
             <View style={styles.loadingCopy}>
               <Text style={styles.loadingTitle}>AI가 분석 중...</Text>
@@ -82,26 +83,19 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  robot: {
-    fontSize: 28,
   },
   loadingCopy: {
     flex: 1,
   },
   loadingTitle: {
     color: palette.textPrimary,
-    fontSize: 24,
-    fontWeight: '900',
+    ...typography.displayMd,
   },
   loadingBody: {
     color: palette.textSecondary,
-    fontSize: 15,
-    fontWeight: '800',
-    lineHeight: 23,
+    ...typography.sticker,
     marginTop: 6,
   },
   sectionCard: {
@@ -116,14 +110,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     flex: 1,
     color: palette.textPrimary,
-    fontSize: 20,
-    fontWeight: '900',
+    ...typography.titleMd,
   },
   sectionBody: {
     color: palette.textSecondary,
-    fontSize: 16,
-    fontWeight: '800',
-    lineHeight: 24,
+    ...typography.body,
     marginTop: 12,
   },
 });

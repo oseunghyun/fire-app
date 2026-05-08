@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CrewRankingCard, FireProgressBar, HandDrawnCard, Header, HighlightNote, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { typography } from '@/constants/typography';
 import { formatPercent } from '@/lib/fireCalculator';
 import { crewRanking, familyContribution } from '@/lib/sampleData';
 
@@ -70,14 +71,11 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     color: palette.textPrimary,
-    fontSize: 24,
-    fontWeight: '900',
+    ...typography.displayMd,
   },
   heroBody: {
     color: palette.textSecondary,
-    fontSize: 16,
-    fontWeight: '800',
-    lineHeight: 24,
+    ...typography.body,
   },
   rankingCard: {
     paddingTop: 14,
@@ -92,8 +90,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: palette.textPrimary,
-    fontSize: 22,
-    fontWeight: '900',
+    ...typography.titleMd,
   },
   compareRow: {
     flexDirection: 'row',
@@ -102,13 +99,11 @@ const styles = StyleSheet.create({
   },
   compareLabel: {
     color: palette.textSecondary,
-    fontSize: 16,
-    fontWeight: '800',
+    ...typography.body,
   },
   compareValue: {
     color: palette.chartBlue,
-    fontSize: 30,
-    fontWeight: '900',
+    ...typography.numberLg,
   },
   compareMuted: {
     color: '#8A8377',
@@ -127,12 +122,10 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     color: palette.textPrimary,
-    fontSize: 15,
-    fontWeight: '900',
+    ...typography.bodySm,
   },
   progressPercent: {
     color: palette.textSecondary,
-    fontSize: 14,
-    fontWeight: '800',
+    ...typography.label,
   },
 });

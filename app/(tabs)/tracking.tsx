@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { FireMascot, HandDrawnCard, Header, PillButton, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
+import { typography } from '@/constants/typography';
 import { formatWon } from '@/lib/fireCalculator';
 import { fireResult } from '@/lib/sampleData';
 
@@ -47,14 +48,11 @@ const styles = StyleSheet.create({
   },
   subtle: {
     color: palette.textSecondary,
-    fontSize: 15,
-    fontWeight: '800',
+    ...typography.bodySm,
   },
   amount: {
     color: palette.textPrimary,
-    fontSize: 46,
-    fontWeight: '900',
-    lineHeight: 54,
+    ...typography.numberXl,
     marginTop: 18,
     textAlign: 'center',
   },
@@ -82,13 +80,11 @@ const styles = StyleSheet.create({
   },
   helperTitle: {
     color: palette.textPrimary,
-    fontSize: 20,
-    fontWeight: '900',
+    ...typography.displayMd,
   },
   helperBody: {
     color: palette.textSecondary,
-    fontSize: 16,
-    fontWeight: '800',
+    ...typography.sticker,
     marginTop: 6,
   },
 });
