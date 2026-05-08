@@ -38,8 +38,8 @@ export default function HomeScreen() {
           </View>
           <FireProgressBar value={fireResult.achievementRate} color={palette.primary} />
           <View style={styles.statGrid}>
-            <SmallStat icon="south" label="이번 달 단축" value={`+${fireResult.savedMonthsThisMonth}개월`} accent="#F7FFF0" />
-            <SmallStat icon="military-tech" label="크루 순위" value="상위 18%" accent="#FFF4EC" />
+            <SmallStat icon="south" label="이번 달 단축" value={`+${fireResult.savedMonthsThisMonth}개월`} accent={palette.softHighlight} />
+            <SmallStat icon="military-tech" label="크루 순위" value="상위 18%" accent={palette.softOrange} />
           </View>
         </HandDrawnCard>
 

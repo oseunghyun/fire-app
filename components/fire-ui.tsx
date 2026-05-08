@@ -1,6 +1,6 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { PropsWithChildren, ReactNode } from 'react';
-import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { PropsWithChildren, ReactNode, useEffect, useRef } from 'react';
+import { Animated, Easing, Image, ImageSourcePropType, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { palette, radius, shadow } from '@/constants/fire-theme';
 import { fontFamily, typography } from '@/constants/typography';
@@ -24,7 +24,13 @@ const spriteMap = {
 export type SpriteIconName = keyof typeof spriteMap;
 
 export function ScreenShell({ children }: PropsWithChildren) {
-  return <View style={styles.screen}>{children}</View>;
+  return (
+    <View style={styles.screen}>
+      <View style={styles.bgSparkTop} />
+      <View style={styles.bgSparkBottom} />
+      {children}
+    </View>
+  );
 }
 
 export function Header({
@@ -41,8 +47,12 @@ export function Header({
       <View style={styles.headerCopy}>
         <Text style={styles.eyebrow}>{eyebrow}</Text>
         <Text style={styles.title}>{title}</Text>
+        <View style={styles.headerUnderline}>
+          <DoodleUnderline width={92} />
+        </View>
       </View>
       {right ?? <FireMascot size={58} mood="spark" />}
+      <View style={styles.headerSpark} />
     </View>
   );
 }
@@ -58,6 +68,10 @@ export function HandDrawnCard({
       <View style={[styles.card, accent ? { backgroundColor: accent } : null, style]}>{children}</View>
       <View style={[styles.cardStroke, styles.strokeTop]} />
       <View style={[styles.cardStroke, styles.strokeBottom]} />
+      <View style={[styles.cardStroke, styles.strokeSideLeft]} />
+      <View style={[styles.cardStroke, styles.strokeSideRight]} />
+      <View style={[styles.cardDot, styles.cardDotLeft]} />
+      <View style={[styles.cardDot, styles.cardDotRight]} />
     </View>
   );
 }
@@ -80,15 +94,21 @@ export function FireCountdown({
       <Text style={styles.countdownEyebrow}>{subLabel}</Text>
       <View style={styles.countdownMetricWrap}>
         <Text style={styles.countdownMetric}>{monthsText}</Text>
-        <DoodleUnderline width={170} />
+        <DoodleUnderline width={176} />
       </View>
       <View style={styles.countdownMascotRow}>
-        <FireMascot size={136} mood="happy" withLog />
+        <FireMascot size={148} mood="happy" withLog />
         {speech ? (
-          <View style={styles.speechBubble}>
-            <Text style={styles.speechText}>{speech}</Text>
+          <View style={styles.speechWrap}>
+            <View style={styles.speechBubble}>
+              <Text style={styles.speechText}>{speech}</Text>
+            </View>
+            <View style={styles.speechTail} />
+            <View style={styles.speechTailMini} />
           </View>
         ) : null}
+        <View style={styles.countdownSpeedLine} />
+        <View style={styles.countdownSparkle} />
       </View>
     </View>
   );
@@ -108,6 +128,7 @@ export function HighlightNote({
       <Text style={styles.highlightEmoji}>{emoji}</Text>
       <Text style={styles.highlightText}>{text}</Text>
       <View style={styles.tape} />
+      <View style={styles.noteDottedLine} />
     </View>
   );
 }
@@ -115,7 +136,7 @@ export function HighlightNote({
 export function FireProgressBar({
   value,
   color = palette.primary,
-  trackColor = '#F3E9D8',
+  trackColor = palette.softNeutral,
   height = 16,
 }: {
   value: number;
@@ -141,6 +162,7 @@ export function DoodleUnderline({ width = 140, color = palette.primary }: { widt
     <View style={[styles.underlineWrap, { width }]}>
       <View style={[styles.underline, { backgroundColor: color, width: width * 0.9, transform: [{ rotate: '-2deg' }] }]} />
       <View style={[styles.underline, { backgroundColor: color, width: width * 0.72, marginLeft: 18, marginTop: 2, transform: [{ rotate: '2deg' }] }]} />
+      <View style={[styles.underline, { backgroundColor: color, width: width * 0.28, marginLeft: width * 0.58, marginTop: 3, transform: [{ rotate: '-5deg' }] }]} />
     </View>
   );
 }
@@ -157,23 +179,69 @@ export function FireMascot({
   const source = mood === 'spark' ? fireThinkAsset : fireIdleAsset;
   const visualWidth = size * 1.34;
   const visualHeight = size * 1.44;
+  const wiggle = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(wiggle, {
+          toValue: 1,
+          duration: 1700,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(wiggle, {
+          toValue: 0,
+          duration: 1700,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    loop.start();
+    return () => loop.stop();
+  }, [wiggle]);
+
+  const rotate = wiggle.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-1.5deg', '1.5deg'],
+  });
+  const scale = wiggle.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.985, 1.02],
+  });
+  const lift = wiggle.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -2],
+  });
 
   return (
-    <View style={[styles.mascotWrap, { width: visualWidth, height: visualHeight }]}>
+    <Animated.View
+      style={[
+        styles.mascotWrap,
+        {
+          width: visualWidth,
+          height: visualHeight,
+          transform: [{ rotate }, { scale }, { translateY: lift }],
+        },
+      ]}>
       <Image source={source} style={{ width: visualWidth, height: visualHeight }} resizeMode="contain" />
+      <View style={styles.mascotShadow} />
       {mood === 'cheer' ? (
         <>
           <View style={[styles.sparkle, { left: 2, top: 12 }]} />
           <View style={[styles.sparkle, { right: 10, top: 4 }]} />
+          <View style={styles.heart} />
         </>
       ) : null}
       {withLog ? (
-        <View style={[styles.logRow, { marginTop: size * -0.04 }]}>
+        <View style={styles.logRow}>
           <View style={styles.logStick} />
           <View style={[styles.logStick, { marginLeft: -12, transform: [{ rotate: '10deg' }] }]} />
         </View>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -194,15 +262,7 @@ export function SpriteIcon({
   const frameHeight = crop.height * scale;
 
   return (
-    <View
-      style={[
-        styles.spriteFrame,
-        {
-          width: size,
-          height: size,
-        },
-        style,
-      ]}>
+    <View style={[styles.spriteFrame, { width: size, height: size }, style]}>
       <Image
         source={iconsPackAsset}
         resizeMode="contain"
@@ -240,6 +300,7 @@ export function PillButton({
   return (
     <Pressable style={[styles.button, dark ? styles.buttonDark : null, primary ? styles.buttonPrimary : null, style]}>
       <Text style={[styles.buttonText, dark ? styles.buttonDarkText : null]}>{label}</Text>
+      <View style={styles.buttonDoodle} />
     </Pressable>
   );
 }
@@ -332,6 +393,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: palette.background,
   },
+  bgSparkTop: {
+    position: 'absolute',
+    top: 92,
+    right: 18,
+    width: 8,
+    height: 8,
+    backgroundColor: palette.highlight,
+    borderWidth: 2,
+    borderColor: palette.textPrimary,
+    transform: [{ rotate: '45deg' }],
+    opacity: 0.55,
+  },
+  bgSparkBottom: {
+    position: 'absolute',
+    bottom: 118,
+    left: 16,
+    width: 26,
+    height: 2,
+    borderRadius: 99,
+    backgroundColor: palette.textPrimary,
+    opacity: 0.1,
+    transform: [{ rotate: '12deg' }],
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -343,6 +427,20 @@ const styles = StyleSheet.create({
   headerCopy: {
     flex: 1,
     paddingRight: 12,
+  },
+  headerUnderline: {
+    marginTop: 4,
+  },
+  headerSpark: {
+    position: 'absolute',
+    right: 18,
+    top: 48,
+    width: 10,
+    height: 10,
+    backgroundColor: palette.highlight,
+    borderWidth: 2,
+    borderColor: palette.textPrimary,
+    transform: [{ rotate: '45deg' }],
   },
   eyebrow: {
     color: palette.textSecondary,
@@ -362,7 +460,7 @@ const styles = StyleSheet.create({
     backgroundColor: palette.paper,
     borderColor: palette.cardLine,
     borderRadius: radius.card,
-    borderWidth: 1.5,
+    borderWidth: 2,
     padding: 18,
     ...shadow.card,
   },
@@ -370,20 +468,48 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: 2,
     backgroundColor: palette.textPrimary,
-    opacity: 0.15,
+    opacity: 0.14,
     borderRadius: 999,
   },
   strokeTop: {
-    width: 34,
+    width: 40,
     right: 18,
     top: -4,
     transform: [{ rotate: '-8deg' }],
   },
   strokeBottom: {
-    width: 42,
+    width: 48,
     left: 22,
     bottom: -4,
     transform: [{ rotate: '4deg' }],
+  },
+  strokeSideLeft: {
+    width: 24,
+    left: -9,
+    top: 34,
+    transform: [{ rotate: '-78deg' }],
+  },
+  strokeSideRight: {
+    width: 22,
+    right: -8,
+    bottom: 34,
+    transform: [{ rotate: '82deg' }],
+  },
+  cardDot: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 999,
+    backgroundColor: palette.textPrimary,
+    opacity: 0.18,
+  },
+  cardDotLeft: {
+    left: 14,
+    top: 16,
+  },
+  cardDotRight: {
+    right: 22,
+    bottom: 18,
   },
   countdown: {
     alignItems: 'center',
@@ -406,59 +532,126 @@ const styles = StyleSheet.create({
     marginTop: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 174,
+    minHeight: 190,
   },
-  speechBubble: {
+  speechWrap: {
     position: 'absolute',
     right: 10,
-    top: 16,
-    backgroundColor: '#FFFDF9',
+    top: 10,
+    alignItems: 'center',
+  },
+  speechBubble: {
+    backgroundColor: palette.paper,
     borderColor: palette.textPrimary,
-    borderWidth: 1.5,
-    borderRadius: 18,
+    borderWidth: 2,
+    borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    maxWidth: 120,
+    maxWidth: 124,
     ...shadow.soft,
+  },
+  speechTail: {
+    width: 18,
+    height: 18,
+    marginTop: -8,
+    marginLeft: -30,
+    backgroundColor: palette.paper,
+    borderLeftWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: palette.textPrimary,
+    transform: [{ rotate: '-30deg' }],
+  },
+  speechTailMini: {
+    width: 8,
+    height: 8,
+    marginTop: -4,
+    marginLeft: -18,
+    backgroundColor: palette.paper,
+    borderLeftWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: palette.textPrimary,
+    transform: [{ rotate: '-18deg' }],
   },
   speechText: {
     color: palette.textPrimary,
     ...typography.sticker,
     textAlign: 'center',
   },
+  countdownSpeedLine: {
+    position: 'absolute',
+    left: 22,
+    bottom: 38,
+    width: 34,
+    height: 2,
+    backgroundColor: palette.textPrimary,
+    opacity: 0.16,
+    transform: [{ rotate: '-14deg' }],
+  },
+  countdownSparkle: {
+    position: 'absolute',
+    right: 16,
+    bottom: 28,
+    width: 8,
+    height: 8,
+    borderWidth: 2,
+    borderColor: palette.textPrimary,
+    backgroundColor: palette.highlight,
+    transform: [{ rotate: '45deg' }],
+  },
   mascotWrap: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  mascotShadow: {
+    position: 'absolute',
+    bottom: 14,
+    width: 50,
+    height: 10,
+    borderRadius: 999,
+    backgroundColor: '#00000012',
+    zIndex: -1,
   },
   sparkle: {
     position: 'absolute',
     width: 10,
     height: 10,
     backgroundColor: palette.highlight,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: palette.textPrimary,
+    transform: [{ rotate: '45deg' }],
+  },
+  heart: {
+    position: 'absolute',
+    top: 2,
+    right: 20,
+    width: 10,
+    height: 10,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    backgroundColor: palette.primary,
     transform: [{ rotate: '45deg' }],
   },
   logRow: {
     flexDirection: 'row',
+    marginTop: -4,
   },
   logStick: {
     width: 40,
     height: 16,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#654028',
-    backgroundColor: '#8A5733',
+    borderColor: palette.textPrimary,
+    backgroundColor: palette.brown,
     transform: [{ rotate: '-12deg' }],
   },
   highlightNote: {
     position: 'relative',
-    backgroundColor: '#FFF39D',
-    borderRadius: 18,
+    backgroundColor: palette.highlight,
+    borderRadius: 20,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: '#E5D45A',
+    borderWidth: 1.5,
+    borderColor: '#CA9734',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -478,11 +671,23 @@ const styles = StyleSheet.create({
     top: -8,
     width: 28,
     height: 14,
-    backgroundColor: '#F0D7A6AA',
+    backgroundColor: '#F4DFC0CC',
     borderRadius: 4,
     transform: [{ rotate: '34deg' }],
   },
+  noteDottedLine: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    bottom: 7,
+    height: 1,
+    borderStyle: 'dashed',
+    borderBottomWidth: 1,
+    borderColor: '#00000018',
+  },
   progressTrack: {
+    borderWidth: 2,
+    borderColor: palette.cardLine,
     borderRadius: radius.pill,
     overflow: 'hidden',
   },
@@ -499,16 +704,20 @@ const styles = StyleSheet.create({
   },
   pill: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F4EBDC',
+    backgroundColor: palette.softNeutral,
     borderRadius: radius.pill,
+    borderWidth: 1.5,
+    borderColor: palette.cardLine,
     paddingHorizontal: 12,
     paddingVertical: 7,
   },
   pillActive: {
-    backgroundColor: palette.textPrimary,
+    backgroundColor: palette.primary,
+    borderColor: palette.primary,
   },
   pillDark: {
-    backgroundColor: '#1F1E1B',
+    backgroundColor: palette.textPrimary,
+    borderColor: palette.textPrimary,
   },
   pillText: {
     color: palette.textSecondary,
@@ -523,16 +732,21 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F0E6D7',
+    backgroundColor: palette.softNeutral,
     borderRadius: radius.control,
+    borderWidth: 2,
+    borderColor: palette.cardLine,
     minHeight: 50,
+    overflow: 'hidden',
     paddingHorizontal: 18,
   },
   buttonPrimary: {
     backgroundColor: palette.primary,
+    borderColor: palette.primary,
   },
   buttonDark: {
     backgroundColor: palette.textPrimary,
+    borderColor: palette.textPrimary,
   },
   buttonText: {
     color: palette.textPrimary,
@@ -542,10 +756,22 @@ const styles = StyleSheet.create({
   buttonDarkText: {
     color: '#FFFFFF',
   },
+  buttonDoodle: {
+    position: 'absolute',
+    right: 12,
+    bottom: 8,
+    width: 20,
+    height: 3,
+    borderRadius: 99,
+    backgroundColor: '#00000010',
+    transform: [{ rotate: '-10deg' }],
+  },
   smallStat: {
     flex: 1,
-    backgroundColor: '#FFF9EE',
+    backgroundColor: palette.softCream,
     borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: palette.cardLine,
     paddingHorizontal: 14,
     paddingVertical: 13,
     gap: 4,
@@ -575,7 +801,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: '#E9E0D1',
+    backgroundColor: palette.cardLine,
   },
   targetLine: {
     position: 'absolute',
@@ -584,7 +810,7 @@ const styles = StyleSheet.create({
     top: 12,
     borderTopWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#FF9586',
+    borderColor: palette.primary,
   },
   chartSegment: {
     position: 'absolute',
@@ -597,7 +823,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 999,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.paper,
     borderWidth: 2,
     borderColor: palette.chartBlue,
   },
@@ -607,28 +833,33 @@ const styles = StyleSheet.create({
   rankRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFF9F0',
+    backgroundColor: palette.softCream,
     borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: palette.cardLine,
     paddingHorizontal: 12,
     paddingVertical: 12,
     gap: 10,
   },
   rankRowMine: {
-    backgroundColor: '#FFE2DB',
+    backgroundColor: palette.softCoral,
+    borderColor: palette.primary,
   },
   rankMedal: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#EFE4D3',
+    backgroundColor: palette.softNeutral,
+    borderWidth: 1.5,
+    borderColor: palette.textPrimary,
     justifyContent: 'center',
     alignItems: 'center',
   },
   rankMedalTop: {
-    backgroundColor: '#FFE89A',
+    backgroundColor: '#FFE2A5',
   },
   rankGold: {
-    backgroundColor: '#FFD14F',
+    backgroundColor: palette.orange,
   },
   rankMedalText: {
     color: palette.textPrimary,
@@ -639,7 +870,9 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.paper,
+    borderWidth: 1.5,
+    borderColor: palette.cardLine,
     justifyContent: 'center',
     alignItems: 'center',
   },

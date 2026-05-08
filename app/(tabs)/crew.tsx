@@ -33,7 +33,7 @@ export default function CrewScreen() {
 
         <HighlightNote text="1위보다 26%p 낮아요! 저축률을 20만원만 더 올리면 4위 진입 가능 💪" emoji="🏁" style={styles.note} />
 
-        <HandDrawnCard accent="#FFF8F0" style={styles.shareCard}>
+        <HandDrawnCard accent={palette.softOrange} style={styles.shareCard}>
           <Text style={styles.sectionTitle}>배우자 포함 vs 제외</Text>
           <View style={styles.compareRow}>
             <Text style={styles.compareLabel}>포함 시</Text>
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     ...typography.numberLg,
   },
   compareMuted: {
-    color: '#8A8377',
+    color: palette.textSecondary,
     fontSize: 24,
   },
   familyCard: {

@@ -37,7 +37,7 @@ export default function AiScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Header eyebrow="AI 월간 리포트" title="AI가 분석 중..." />
 
-        <HandDrawnCard accent="#FFF8F2" style={styles.loadingCard}>
+        <HandDrawnCard accent={palette.softOrange} style={styles.loadingCard}>
           <View style={styles.loadingRow}>
             <View style={styles.robotBubble}>
               <FireMascot size={52} mood="spark" />
