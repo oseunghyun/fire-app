@@ -5,7 +5,7 @@ import { palette } from '@/constants/fire-theme';
 import { fontFamily, typography } from '@/constants/typography';
 import { useAuth } from '@/hooks/use-auth';
 import { calculateFireResult } from '@/lib/fireCalculator';
-import { upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
+import { syncCrewMetrics, upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
 import { useHouseholdStore } from '@/store/householdStore';
 
 export function AuthCard() {
@@ -74,7 +74,13 @@ export function AuthCard() {
         yearMonth: '2026-05',
         fireResult,
       });
-      setMessage('공유용 월간 스냅샷을 저장했어요.');
+      await syncCrewMetrics({
+        userId: user.id,
+        nickname: user.email?.split('@')[0] ?? '파이어러',
+        household,
+        fireResult,
+      });
+      setMessage('공유용 월간 스냅샷과 크루 기록을 저장했어요.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : '스냅샷 저장에 실패했어요.');
     } finally {
