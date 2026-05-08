@@ -13,6 +13,18 @@ export type AiReportSection = {
   body: string;
 };
 
+export type FeedTag = '전체' | '달성 후기' | '고민' | '팁';
+
+export type FeedPost = {
+  id: string;
+  tag: Exclude<FeedTag, '전체'>;
+  title: string;
+  meta: string;
+  likes: number;
+  comments: number;
+  mascot: 'winner' | 'tired' | 'saving' | 'surprised';
+};
+
 export function getHouseholdEyebrow(household: Household) {
   const typeLabel =
     household.type === 'single'
@@ -126,6 +138,50 @@ export function getAiReportSections(household: Household): AiReportSection[] {
         household.members.length > 1
           ? '부부라면 ISA와 IRP를 한 사람에게 몰지 말고 각자 한도대로 나눠 쓰는 편이 절세 효율이 더 좋습니다.'
           : 'ISA 비과세 한도와 연금저축 세액공제를 같이 챙기면 FIRE 계좌의 실질 수익률을 조금 더 끌어올릴 수 있어요.',
+    },
+  ];
+}
+
+export function getFeedPosts(household: Household): FeedPost[] {
+  const fireResult = calculateFireResult(household);
+  const latestSnapshot = household.monthlySnapshots.at(-1);
+  const childCount = household.children.length;
+  const householdTag = household.members.length > 1 ? '#맞벌이' : '#1인가구';
+  const childTag = childCount > 0 ? ` #자녀${childCount}명` : '';
+
+  return [
+    {
+      id: 'progress',
+      tag: '달성 후기',
+      title: `이번 달 ${latestSnapshot?.savedMonths ?? 0}개월 단축됐어요. FIRE까지 ${formatFireDistance(fireResult.monthsToFire)} 남았어요!`,
+      meta: `${householdTag}${childTag} #저축률${Math.round(fireResult.savingsRate)}`,
+      likes: 110 + Math.round(fireResult.savingsRate),
+      comments: 18 + household.members.length,
+      mascot: 'winner',
+    },
+    {
+      id: 'worry',
+      tag: '고민',
+      title:
+        childCount > 0
+          ? '교육비 구간이 다가오는데 저축률을 어떻게 지킬지 고민 중이에요.'
+          : '생활비가 자꾸 흔들려서 저축률이 들쭉날쭉해요. 루틴을 다시 잡는 중이에요.',
+      meta: `${householdTag}${childTag} #FIRE루틴`,
+      likes: 52 + childCount * 8,
+      comments: 12 + childCount * 3,
+      mascot: 'tired',
+    },
+    {
+      id: 'tip',
+      tag: '팁',
+      title:
+        household.members.length > 1
+          ? '부부 공용지출을 따로 모아보니 새는 비용이 보여요. 월간 체크가 꽤 효과적이에요.'
+          : '자동이체 날짜를 월급 다음날로 고정하니 저축률 유지가 훨씬 쉬워졌어요.',
+      meta: `${householdTag} #월간트래킹 #습관`,
+      likes: 74 + Math.round(fireResult.achievementRate / 5),
+      comments: 16,
+      mascot: 'saving',
     },
   ];
 }
