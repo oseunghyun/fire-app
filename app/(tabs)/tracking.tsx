@@ -10,7 +10,7 @@ export default function TrackingScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="월간 자산 입력" title="이번 달 총 금융자산은 얼마인가요?" />
+        <Header eyebrow="월간 자산 입력" title="이번 달 총 금융자산은 얼마인가요?" right={<FireMascot size={60} mood="saving" />} />
 
         <HandDrawnCard style={styles.inputCard}>
           <Text style={styles.subtle}>(부동산 제외)</Text>
@@ -25,7 +25,7 @@ export default function TrackingScreen() {
 
         <HandDrawnCard accent={palette.softOrange} style={styles.helperCard} tilt={-1}>
           <View style={styles.helperRow}>
-            <FireMascot size={64} mood="happy" />
+            <FireMascot size={64} mood="saving" />
             <View style={styles.helperCopy}>
               <Text style={styles.helperTitle}>입력하면 바로</Text>
               <Text style={styles.helperBody}>단축 효과를 보여드릴게요!</Text>

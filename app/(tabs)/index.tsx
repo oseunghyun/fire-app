@@ -21,7 +21,7 @@ export default function HomeScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="김파이어님, 맞벌이 · 자녀 1명" title="FIRE까지" />
+        <Header eyebrow="김파이어님, 맞벌이 · 자녀 1명" title="FIRE까지" right={<FireMascot size={60} mood="goal" />} />
 
         <HandDrawnCard style={styles.heroCard}>
           <FireCountdown
@@ -60,9 +60,9 @@ export default function HomeScreen() {
             딱딱한 금융앱보다, 귀여운 불씨랑 같이 달리는 자산 여정. 숫자는 깔끔하게 보고 기분은 게임처럼 가져가요.
           </Text>
           <View style={styles.storyMascots}>
-            <FireMascot size={70} mood="cheer" />
-            <FireMascot size={54} mood="spark" />
-            <FireMascot size={62} mood="happy" withLog />
+            <FireMascot size={70} mood="winner" />
+            <FireMascot size={54} mood="saving" />
+            <FireMascot size={62} mood="goal" withLog />
           </View>
         </HandDrawnCard>
       </ScrollView>

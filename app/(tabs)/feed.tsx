@@ -15,7 +15,7 @@ const posts = [
     meta: '#35세 맞벌이 #리밸런싱',
     likes: 124,
     comments: 32,
-    mascot: 'happy' as const,
+    mascot: 'winner' as const,
   },
   {
     id: '2',
@@ -24,7 +24,7 @@ const posts = [
     meta: '#자녀교육 #맞벌이',
     likes: 68,
     comments: 15,
-    mascot: 'spark' as const,
+    mascot: 'tired' as const,
   },
   {
     id: '3',
@@ -33,7 +33,7 @@ const posts = [
     meta: '#ISA #IRP #연말정산',
     likes: 89,
     comments: 21,
-    mascot: 'cheer' as const,
+    mascot: 'saving' as const,
   },
 ];
 
@@ -41,7 +41,7 @@ export default function FeedScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="파이어 피드" title="짧고 귀여운 FIRE 근황" />
+        <Header eyebrow="파이어 피드" title="짧고 귀여운 FIRE 근황" right={<FireMascot size={58} mood="surprised" />} />
 
         <View style={styles.filterRow}>
           {filters.map((filter, index) => (

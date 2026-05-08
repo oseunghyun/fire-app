@@ -35,12 +35,12 @@ export default function AiScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="AI 월간 리포트" title="AI가 분석 중..." />
+        <Header eyebrow="AI 월간 리포트" title="AI가 분석 중..." right={<FireMascot size={60} mood="analyzing" />} />
 
         <HandDrawnCard accent={palette.softOrange} style={styles.loadingCard}>
           <View style={styles.loadingRow}>
             <View style={styles.robotBubble}>
-              <FireMascot size={52} mood="spark" />
+              <FireMascot size={52} mood="analyzing" />
             </View>
             <View style={styles.loadingCopy}>
               <Text style={styles.loadingTitle}>AI가 분석 중...</Text>

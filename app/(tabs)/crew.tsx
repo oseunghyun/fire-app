@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { CrewRankingCard, FireProgressBar, HandDrawnCard, Header, HighlightNote, ScreenShell } from '@/components/fire-ui';
+import { CrewRankingCard, FireMascot, FireProgressBar, HandDrawnCard, Header, HighlightNote, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
 import { typography } from '@/constants/typography';
 import { formatPercent } from '@/lib/fireCalculator';
@@ -12,7 +12,7 @@ export default function CrewScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="파이어 챌린저" title="길드 랭킹 모드" />
+        <Header eyebrow="파이어 챌린저" title="길드 랭킹 모드" right={<FireMascot size={60} mood="winner" />} />
 
         <HandDrawnCard accent={palette.softCream} style={styles.heroCard}>
           <Text style={styles.heroTitle}>이번 달 저축률 랭킹 👑</Text>

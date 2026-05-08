@@ -6,7 +6,14 @@ import { palette, radius, shadow } from '@/constants/fire-theme';
 import { fontFamily, typography } from '@/constants/typography';
 
 const fireIdleAsset = require('@/assets/mascot/fire_idle.png') as ImageSourcePropType;
+const fireAnalyzingAsset = require('@/assets/mascot/fire_analyzing.png') as ImageSourcePropType;
+const fireGoalAsset = require('@/assets/mascot/fire_goal.png') as ImageSourcePropType;
+const fireRocketAsset = require('@/assets/mascot/fire_rocket.png') as ImageSourcePropType;
+const fireSavingAsset = require('@/assets/mascot/fire_saving.png') as ImageSourcePropType;
+const fireSurprisedAsset = require('@/assets/mascot/fire_surprised.png') as ImageSourcePropType;
 const fireThinkAsset = require('@/assets/mascot/fire_think.png') as ImageSourcePropType;
+const fireTiredAsset = require('@/assets/mascot/fire_tired.png') as ImageSourcePropType;
+const fireWinnerAsset = require('@/assets/mascot/fire_winner.png') as ImageSourcePropType;
 const iconsPackAsset = require('@/assets/icon/icons-pack.png') as ImageSourcePropType;
 
 const ICONS_PACK_WIDTH = 1536;
@@ -173,10 +180,22 @@ export function FireMascot({
   withLog = false,
 }: {
   size?: number;
-  mood?: 'happy' | 'spark' | 'cheer';
+  mood?: 'idle' | 'happy' | 'spark' | 'cheer' | 'saving' | 'goal' | 'rocket' | 'analyzing' | 'surprised' | 'tired' | 'winner';
   withLog?: boolean;
 }) {
-  const source = mood === 'spark' ? fireThinkAsset : fireIdleAsset;
+  const source = {
+    idle: fireIdleAsset,
+    happy: fireIdleAsset,
+    spark: fireThinkAsset,
+    cheer: fireIdleAsset,
+    saving: fireSavingAsset,
+    goal: fireGoalAsset,
+    rocket: fireRocketAsset,
+    analyzing: fireAnalyzingAsset,
+    surprised: fireSurprisedAsset,
+    tired: fireTiredAsset,
+    winner: fireWinnerAsset,
+  }[mood];
   const visualWidth = size * 1.34;
   const visualHeight = size * 1.44;
   const wiggle = useRef(new Animated.Value(0)).current;
