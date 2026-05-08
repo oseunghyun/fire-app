@@ -4,6 +4,7 @@ export type Member = {
   id: 'self' | 'partner';
   name: string;
   age: number;
+  goalRetirementAge: number;
   monthlyIncome: number;
   monthlyExpense: number;
   currentAssets: number;

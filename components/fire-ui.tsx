@@ -15,6 +15,7 @@ const fireThinkAsset = require('@/assets/mascot/fire_think.png') as ImageSourceP
 const fireTiredAsset = require('@/assets/mascot/fire_tired.png') as ImageSourcePropType;
 const fireWinnerAsset = require('@/assets/mascot/fire_winner.png') as ImageSourcePropType;
 const iconsPackAsset = require('@/assets/icon/icons-pack.png') as ImageSourcePropType;
+const penDrawingAsset = require('@/assets/icon/pen_drawing.png') as ImageSourcePropType;
 
 const ICONS_PACK_WIDTH = 1536;
 const ICONS_PACK_HEIGHT = 1024;
@@ -104,7 +105,7 @@ export function FireCountdown({
         <DoodleUnderline width={176} />
       </View>
       <View style={styles.countdownMascotRow}>
-        <FireMascot size={148} mood="happy" withLog />
+        <FireMascot size={148} mood="happy" />
         {speech ? (
           <View style={styles.speechWrap}>
             <View style={styles.speechBubble}>
@@ -164,12 +165,26 @@ export function ProgressBar(props: { value: number; color?: string }) {
   return <FireProgressBar value={props.value} color={props.color} />;
 }
 
-export function DoodleUnderline({ width = 140, color = palette.primary }: { width?: number; color?: string }) {
+export function DoodleUnderline({ width = 140 }: { width?: number; color?: string }) {
+  const imageWidth = width * 1.58;
+  const imageHeight = imageWidth * (1024 / 1536);
+  const visibleHeight = Math.max(18, width * 0.16);
+
   return (
-    <View style={[styles.underlineWrap, { width }]}>
-      <View style={[styles.underline, { backgroundColor: color, width: width * 0.9, transform: [{ rotate: '-2deg' }] }]} />
-      <View style={[styles.underline, { backgroundColor: color, width: width * 0.72, marginLeft: 18, marginTop: 2, transform: [{ rotate: '2deg' }] }]} />
-      <View style={[styles.underline, { backgroundColor: color, width: width * 0.28, marginLeft: width * 0.58, marginTop: 3, transform: [{ rotate: '-5deg' }] }]} />
+    <View style={[styles.underlineWrap, { width, height: visibleHeight }]}>
+      <Image
+        source={penDrawingAsset}
+        style={[
+          styles.underlineImage,
+          {
+            width: imageWidth,
+            height: imageHeight,
+            left: (width - imageWidth) / 2,
+            top: visibleHeight / 2 - imageHeight * 0.47,
+          },
+        ]}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -177,11 +192,9 @@ export function DoodleUnderline({ width = 140, color = palette.primary }: { widt
 export function FireMascot({
   size = 88,
   mood = 'happy',
-  withLog = false,
 }: {
   size?: number;
   mood?: 'idle' | 'happy' | 'spark' | 'cheer' | 'saving' | 'goal' | 'rocket' | 'analyzing' | 'surprised' | 'tired' | 'winner';
-  withLog?: boolean;
 }) {
   const source = {
     idle: fireIdleAsset,
@@ -254,12 +267,6 @@ export function FireMascot({
           <View style={styles.heart} />
         </>
       ) : null}
-      {withLog ? (
-        <View style={styles.logRow}>
-          <View style={styles.logStick} />
-          <View style={[styles.logStick, { marginLeft: -12, transform: [{ rotate: '10deg' }] }]} />
-        </View>
-      ) : null}
     </Animated.View>
   );
 }
@@ -310,14 +317,16 @@ export function PillButton({
   dark,
   primary = false,
   style,
+  onPress,
 }: {
   label: string;
   dark?: boolean;
   primary?: boolean;
   style?: ViewStyle;
+  onPress?: () => void;
 }) {
   return (
-    <Pressable style={[styles.button, dark ? styles.buttonDark : null, primary ? styles.buttonPrimary : null, style]}>
+    <Pressable onPress={onPress} style={[styles.button, dark ? styles.buttonDark : null, primary ? styles.buttonPrimary : null, style]}>
       <Text style={[styles.buttonText, dark ? styles.buttonDarkText : null]}>{label}</Text>
       <View style={styles.buttonDoodle} />
     </Pressable>
@@ -650,19 +659,6 @@ const styles = StyleSheet.create({
     backgroundColor: palette.primary,
     transform: [{ rotate: '45deg' }],
   },
-  logRow: {
-    flexDirection: 'row',
-    marginTop: -4,
-  },
-  logStick: {
-    width: 40,
-    height: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: palette.textPrimary,
-    backgroundColor: palette.brown,
-    transform: [{ rotate: '-12deg' }],
-  },
   highlightNote: {
     position: 'relative',
     backgroundColor: palette.highlight,
@@ -716,10 +712,11 @@ const styles = StyleSheet.create({
   },
   underlineWrap: {
     marginTop: 4,
+    overflow: 'hidden',
+    position: 'relative',
   },
-  underline: {
-    height: 4,
-    borderRadius: 99,
+  underlineImage: {
+    position: 'absolute',
   },
   pill: {
     alignSelf: 'flex-start',

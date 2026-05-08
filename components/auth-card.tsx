@@ -4,11 +4,14 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { palette } from '@/constants/fire-theme';
 import { fontFamily, typography } from '@/constants/typography';
 import { useAuth } from '@/hooks/use-auth';
+import { calculateFireResult } from '@/lib/fireCalculator';
 import { upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
-import { fireResult, household } from '@/lib/sampleData';
+import { useHouseholdStore } from '@/store/householdStore';
 
 export function AuthCard() {
   const { isConfigured, isLoading, session, signInWithEmail, signInWithPassword, signOut, user } = useAuth();
+  const household = useHouseholdStore((state) => state.household);
+  const fireResult = calculateFireResult(household);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

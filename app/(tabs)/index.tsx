@@ -14,10 +14,13 @@ import {
 } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
 import { typography } from '@/constants/typography';
-import { formatFireDistance, formatPercent } from '@/lib/fireCalculator';
-import { fireResult } from '@/lib/sampleData';
+import { calculateFireResult, formatFireDistance, formatPercent } from '@/lib/fireCalculator';
+import { useHouseholdStore } from '@/store/householdStore';
 
 export default function HomeScreen() {
+  const household = useHouseholdStore((state) => state.household);
+  const fireResult = calculateFireResult(household);
+
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -62,7 +65,7 @@ export default function HomeScreen() {
           <View style={styles.storyMascots}>
             <FireMascot size={70} mood="winner" />
             <FireMascot size={54} mood="saving" />
-            <FireMascot size={62} mood="goal" withLog />
+            <FireMascot size={62} mood="goal" />
           </View>
         </HandDrawnCard>
       </ScrollView>
