@@ -15,6 +15,7 @@ import {
 import { palette } from '@/constants/fire-theme';
 import { typography } from '@/constants/typography';
 import { calculateFireResult, formatFireDistance, formatPercent } from '@/lib/fireCalculator';
+import { getHouseholdEyebrow } from '@/lib/householdInsights';
 import { useHouseholdStore } from '@/store/householdStore';
 
 export default function HomeScreen() {
@@ -24,7 +25,7 @@ export default function HomeScreen() {
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="김파이어님, 맞벌이 · 자녀 1명" title="FIRE까지" right={<FireMascot size={60} mood="goal" />} />
+        <Header eyebrow={getHouseholdEyebrow(household)} title="FIRE까지" right={<FireMascot size={60} mood="goal" />} />
 
         <HandDrawnCard style={styles.heroCard}>
           <FireCountdown

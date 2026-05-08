@@ -3,12 +3,18 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CrewRankingCard, FireMascot, FireProgressBar, HandDrawnCard, Header, HighlightNote, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
 import { typography } from '@/constants/typography';
-import { formatPercent } from '@/lib/fireCalculator';
-import { crewRanking, familyContribution } from '@/lib/sampleData';
-
-const myCrewRank = crewRanking.find((member) => member.name === '우리집') ?? crewRanking[2];
+import { calculateFireResult, formatFireDistance, formatPercent } from '@/lib/fireCalculator';
+import { getCrewInsight, getCrewRanking, getFamilyContribution, getPartnerComparison } from '@/lib/householdInsights';
+import { useHouseholdStore } from '@/store/householdStore';
 
 export default function CrewScreen() {
+  const household = useHouseholdStore((state) => state.household);
+  const fireResult = calculateFireResult(household);
+  const crewRanking = getCrewRanking(fireResult);
+  const crewInsight = getCrewInsight(crewRanking);
+  const familyContribution = getFamilyContribution(household);
+  const partnerComparison = getPartnerComparison(household);
+
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -16,32 +22,38 @@ export default function CrewScreen() {
 
         <HandDrawnCard accent={palette.softCream} style={styles.heroCard}>
           <Text style={styles.heroTitle}>이번 달 저축률 랭킹 👑</Text>
-          <Text style={styles.heroBody}>1위보다 26%p 낮아요. 저축률 20만원만 더 하면 4위 진입 가능!</Text>
+          <Text style={styles.heroBody}>
+            1위보다 {crewInsight.gapToLeader}%p 낮아요. 저축률을 {Math.max(10, crewInsight.gapToNext)}%p만 더 올리면 바로 윗순위를 노릴 수 있어요.
+          </Text>
         </HandDrawnCard>
 
         <HandDrawnCard style={styles.rankingCard}>
           <CrewRankingCard
-            myRank={myCrewRank.rank}
+            myRank={crewInsight.me.rank}
             rows={crewRanking.map((member) => ({
               rank: member.rank,
-              name: member.rank === myCrewRank.rank ? `${member.name} (나)` : member.name,
+              name: member.isMe ? `${member.name} (나)` : member.name,
               value: formatPercent(member.savingsRate),
               badge: member.rank <= 3 ? `${member.rank}` : undefined,
             }))}
           />
         </HandDrawnCard>
 
-        <HighlightNote text="1위보다 26%p 낮아요! 저축률을 20만원만 더 올리면 4위 진입 가능 💪" emoji="🏁" style={styles.note} />
+        <HighlightNote
+          text={`현재 저축률 ${formatPercent(fireResult.savingsRate)}. 이번 달 페이스만 유지해도 FIRE까지 ${formatFireDistance(fireResult.monthsToFire)} 코스예요 💪`}
+          emoji="🏁"
+          style={styles.note}
+        />
 
         <HandDrawnCard accent={palette.softOrange} style={styles.shareCard}>
           <Text style={styles.sectionTitle}>배우자 포함 vs 제외</Text>
           <View style={styles.compareRow}>
             <Text style={styles.compareLabel}>포함 시</Text>
-            <Text style={styles.compareValue}>8년 4개월</Text>
+            <Text style={styles.compareValue}>{formatFireDistance(partnerComparison.withPartnerMonths)}</Text>
           </View>
           <View style={styles.compareRow}>
             <Text style={styles.compareLabel}>제외 시</Text>
-            <Text style={[styles.compareValue, styles.compareMuted]}>14년 7개월</Text>
+            <Text style={[styles.compareValue, styles.compareMuted]}>{formatFireDistance(partnerComparison.withoutPartnerMonths)}</Text>
           </View>
         </HandDrawnCard>
 
