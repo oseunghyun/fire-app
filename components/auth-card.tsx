@@ -2,12 +2,16 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { palette } from '@/constants/fire-theme';
+import { fontFamily, typography } from '@/constants/typography';
 import { useAuth } from '@/hooks/use-auth';
-import { upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
-import { fireResult, household } from '@/lib/sampleData';
+import { calculateFireResult } from '@/lib/fireCalculator';
+import { syncCrewMetrics, upsertHouseholdSummary, upsertProfile, upsertSharedMonthlySnapshot } from '@/lib/fireData';
+import { useHouseholdStore } from '@/store/householdStore';
 
 export function AuthCard() {
   const { isConfigured, isLoading, session, signInWithEmail, signInWithPassword, signOut, user } = useAuth();
+  const household = useHouseholdStore((state) => state.household);
+  const fireResult = calculateFireResult(household);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -70,7 +74,13 @@ export function AuthCard() {
         yearMonth: '2026-05',
         fireResult,
       });
-      setMessage('공유용 월간 스냅샷을 저장했어요.');
+      await syncCrewMetrics({
+        userId: user.id,
+        nickname: user.email?.split('@')[0] ?? '파이어러',
+        household,
+        fireResult,
+      });
+      setMessage('공유용 월간 스냅샷과 크루 기록을 저장했어요.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : '스냅샷 저장에 실패했어요.');
     } finally {
@@ -89,8 +99,9 @@ export function AuthCard() {
   if (!isConfigured) {
     return (
       <View style={styles.card}>
-        <Text style={styles.label}>Supabase 연결 대기</Text>
-        <Text style={styles.body}>`.env`에 Supabase URL과 anon key를 넣으면 로그인과 공유 스냅샷 저장이 활성화됩니다.</Text>
+        <Text style={styles.label}>연동 대기</Text>
+        <Text style={styles.title}>우리 가족 데이터 연결하기</Text>
+        <Text style={styles.body}>`.env`에 Supabase URL과 anon key를 넣으면 로그인과 공유 스냅샷 저장이 켜집니다.</Text>
       </View>
     );
   }
@@ -98,7 +109,7 @@ export function AuthCard() {
   if (session) {
     return (
       <View style={styles.card}>
-        <Text style={styles.label}>로그인됨</Text>
+        <Text style={styles.label}>연결 완료</Text>
         <Text style={styles.title}>{user?.email ?? 'FIRE 사용자'}</Text>
         <Pressable style={styles.button} onPress={handleSyncSnapshot} disabled={isSubmitting}>
           <Text style={styles.buttonText}>{isSubmitting ? '저장 중' : '이번 달 스냅샷 저장'}</Text>
@@ -113,7 +124,7 @@ export function AuthCard() {
 
   return (
     <View style={styles.card}>
-        <Text style={styles.label}>{isLoading ? '세션 확인 중' : '계정 연결'}</Text>
+      <Text style={styles.label}>{isLoading ? '세션 확인 중' : '계정 연결'}</Text>
       <Text style={styles.title}>이메일로 시작하기</Text>
       <TextInput
         autoCapitalize="none"
@@ -143,66 +154,59 @@ export function AuthCard() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFF8F5',
-    borderColor: palette.ink,
+    backgroundColor: palette.softCream,
+    borderColor: palette.cardLine,
     borderRadius: 24,
-    borderWidth: 2,
+    borderWidth: 1.5,
     marginHorizontal: 20,
     marginTop: 18,
     padding: 20,
   },
   label: {
-    color: palette.muted,
-    fontSize: 14,
-    fontWeight: '900',
+    color: palette.textSecondary,
+    ...typography.label,
   },
   title: {
-    color: palette.ink,
-    fontSize: 23,
-    fontWeight: '900',
-    lineHeight: 30,
+    color: palette.textPrimary,
+    ...typography.titleMd,
     marginTop: 8,
   },
   body: {
-    color: '#4D4B46',
-    fontSize: 15,
-    fontWeight: '700',
-    lineHeight: 23,
+    color: palette.textSecondary,
+    ...typography.bodySm,
     marginTop: 8,
   },
   input: {
     backgroundColor: '#FFFFFF',
-    borderColor: palette.ink,
+    borderColor: palette.cardLine,
     borderRadius: 16,
-    borderWidth: 2,
-    color: palette.ink,
+    borderWidth: 1.5,
+    color: palette.textPrimary,
     fontSize: 16,
-    fontWeight: '800',
+    fontFamily: fontFamily.bodyStrong,
     marginTop: 14,
     paddingHorizontal: 14,
     paddingVertical: 13,
   },
   button: {
     alignItems: 'center',
-    backgroundColor: palette.ink,
-    borderRadius: 999,
+    backgroundColor: palette.textPrimary,
+    borderRadius: 16,
     marginTop: 12,
     paddingVertical: 15,
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '900',
+    fontFamily: fontFamily.bodyBold,
   },
   testButton: {
-    backgroundColor: palette.coral,
+    backgroundColor: palette.primary,
     marginTop: 8,
   },
   message: {
-    color: palette.coral,
-    fontSize: 14,
-    fontWeight: '800',
-    lineHeight: 21,
+    color: palette.primary,
+    ...typography.bodySm,
     marginTop: 10,
   },
 });

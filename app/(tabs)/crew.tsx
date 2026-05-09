@@ -1,55 +1,117 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { FlameMark, Header, ProgressBar, ScreenShell, SectionCard } from '@/components/fire-ui';
+import { CrewRankingCard, FireMascot, FireProgressBar, HandDrawnCard, Header, HighlightNote, PillButton, ScreenShell } from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
-import { formatPercent } from '@/lib/fireCalculator';
-import { crewRanking, familyContribution } from '@/lib/sampleData';
-
-const myCrewRank = crewRanking.find((member) => member.name === '우리집') ?? crewRanking[2];
-const crewLeaderGap = Math.max(0, crewRanking[0].savingsRate - myCrewRank.savingsRate);
+import { typography } from '@/constants/typography';
+import { useAuth } from '@/hooks/use-auth';
+import { useFamilyCrew } from '@/hooks/use-family-crew';
+import { calculateFireResult, formatFireDistance, formatPercent } from '@/lib/fireCalculator';
+import { syncCrewMetrics } from '@/lib/fireData';
+import { getCrewInsight, getCrewRanking, getFamilyContribution, getPartnerComparison } from '@/lib/householdInsights';
+import { useHouseholdStore } from '@/store/householdStore';
 
 export default function CrewScreen() {
+  const household = useHouseholdStore((state) => state.household);
+  const { user } = useAuth();
+  const { crew, isLoading, error, refresh } = useFamilyCrew(user?.id);
+  const fireResult = calculateFireResult(household);
+  const [syncMessage, setSyncMessage] = useState('');
+  const localRanking = getCrewRanking(fireResult);
+  const crewRanking =
+    crew?.members && crew.members.length > 0
+      ? crew.members.map((member, index) => ({
+          rank: index + 1,
+          name: member.nickname,
+          savingsRate: member.savingsRate,
+          isMe: member.userId === user?.id,
+        }))
+      : localRanking;
+  const crewInsight = getCrewInsight(crewRanking);
+  const familyContribution = getFamilyContribution(household);
+  const partnerComparison = getPartnerComparison(household);
+
+  async function handleSyncCrew() {
+    if (!user) {
+      setSyncMessage('로그인 후에 크루 기록을 동기화할 수 있어요.');
+      return;
+    }
+
+    setSyncMessage('');
+
+    try {
+      await syncCrewMetrics({
+        userId: user.id,
+        nickname: user.email?.split('@')[0] ?? '파이어러',
+        household,
+        fireResult,
+      });
+      await refresh();
+      setSyncMessage('크루 기록을 최신 FIRE 수치로 동기화했어요.');
+    } catch (syncError) {
+      setSyncMessage(syncError instanceof Error ? syncError.message : '크루 동기화에 실패했어요.');
+    }
+  }
+
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="파이어 크루" title={`내 순위 ${myCrewRank.rank}위`} />
+        <Header eyebrow="파이어 챌린저" title="길드 랭킹 모드" right={<FireMascot size={60} mood="winner" />} />
 
-        <SectionCard accent="#F4FBEF" style={styles.hero}>
-          <View style={styles.heroCopy}>
-            <Text style={styles.label}>30대 맞벌이 크루</Text>
-            <Text style={styles.heroTitle}>금액은 숨기고, 속도만 공유</Text>
-            <Text style={styles.heroBody}>1위보다 {crewLeaderGap}%p 낮아요. 이번 달 식비 18만원만 줄이면 2위권.</Text>
+        <HandDrawnCard accent={palette.softCream} style={styles.heroCard}>
+          <Text style={styles.heroTitle}>이번 달 저축률 랭킹 👑</Text>
+          <Text style={styles.heroBody}>
+            1위보다 {crewInsight.gapToLeader}%p 낮아요. 저축률을 {Math.max(10, crewInsight.gapToNext)}%p만 더 올리면 바로 윗순위를 노릴 수 있어요.
+          </Text>
+          <View style={styles.syncRow}>
+            <PillButton label={user ? (isLoading ? '불러오는 중...' : '내 기록 동기화') : '로그인 후 동기화'} onPress={handleSyncCrew} />
+            <Text style={styles.syncHint}>{crew ? crew.name : '아직 서버 크루가 없으면 로컬 랭킹으로 보여줘요.'}</Text>
           </View>
-          <FlameMark size={76} label={`${myCrewRank.rank}`} />
-        </SectionCard>
+          {syncMessage || error ? <Text style={styles.syncMessage}>{syncMessage || error}</Text> : null}
+        </HandDrawnCard>
 
-        <SectionCard>
-          <View style={styles.cardHead}>
-            <Text style={styles.sectionTitle}>이달 저축률 랭킹</Text>
-            <Text style={styles.label}>금액 비공개</Text>
+        <HandDrawnCard style={styles.rankingCard}>
+          <CrewRankingCard
+            myRank={crewInsight.me.rank}
+            rows={crewRanking.map((member) => ({
+              rank: member.rank,
+              name: member.isMe ? `${member.name} (나)` : member.name,
+              value: formatPercent(member.savingsRate),
+              badge: member.rank <= 3 ? `${member.rank}` : undefined,
+            }))}
+          />
+        </HandDrawnCard>
+
+        <HighlightNote
+          text={`현재 저축률 ${formatPercent(fireResult.savingsRate)}. 이번 달 페이스만 유지해도 FIRE까지 ${formatFireDistance(fireResult.monthsToFire)} 코스예요 💪`}
+          emoji="🏁"
+          style={styles.note}
+        />
+
+        <HandDrawnCard accent={palette.softOrange} style={styles.shareCard}>
+          <Text style={styles.sectionTitle}>배우자 포함 vs 제외</Text>
+          <View style={styles.compareRow}>
+            <Text style={styles.compareLabel}>포함 시</Text>
+            <Text style={styles.compareValue}>{formatFireDistance(partnerComparison.withPartnerMonths)}</Text>
           </View>
-          {crewRanking.map(({ rank, name, savingsRate }) => (
-            <View key={rank} style={[styles.rankRow, rank === 3 ? styles.mine : null]}>
-              <Text style={styles.rankBadge}>{rank}</Text>
-              <Text style={styles.rankName}>{name}</Text>
-              <Text style={styles.rankRate}>{formatPercent(savingsRate)}</Text>
-            </View>
-          ))}
-        </SectionCard>
+          <View style={styles.compareRow}>
+            <Text style={styles.compareLabel}>제외 시</Text>
+            <Text style={[styles.compareValue, styles.compareMuted]}>{formatFireDistance(partnerComparison.withoutPartnerMonths)}</Text>
+          </View>
+        </HandDrawnCard>
 
-        <SectionCard>
-          <Text style={styles.sectionTitle}>가족 크루 달성률</Text>
+        <HandDrawnCard style={styles.familyCard}>
+          <Text style={styles.sectionTitle}>가족별 자산 기여도</Text>
           {familyContribution.map((member, index) => (
-            <View key={member.id} style={styles.memberRow}>
-              <Text style={styles.memberName}>{member.name}</Text>
-              <ProgressBar value={member.assetShare} color={index === 0 ? palette.blue : palette.green} />
+            <View key={member.id} style={styles.progressRow}>
+              <View style={styles.progressHeader}>
+                <Text style={styles.progressLabel}>{member.name}</Text>
+                <Text style={styles.progressPercent}>{formatPercent(member.assetShare)}</Text>
+              </View>
+              <FireProgressBar value={member.assetShare} color={index === 0 ? palette.chartBlue : palette.orange} />
             </View>
           ))}
-        </SectionCard>
-
-        <View style={styles.chatPreview}>
-          <Text style={styles.chatText}>“IRP 세액공제 한도 정리한 글 공유했어요.”</Text>
-        </View>
+        </HandDrawnCard>
       </ScrollView>
     </ScreenShell>
   );
@@ -57,104 +119,81 @@ export default function CrewScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 112,
+    paddingBottom: 116,
   },
-  hero: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 14,
-  },
-  heroCopy: {
-    flex: 1,
-  },
-  label: {
-    color: palette.muted,
-    fontSize: 14,
-    fontWeight: '900',
+  heroCard: {
+    gap: 10,
   },
   heroTitle: {
-    color: palette.ink,
-    fontSize: 25,
-    fontWeight: '900',
-    lineHeight: 31,
-    marginTop: 8,
+    color: palette.textPrimary,
+    ...typography.displayMd,
   },
   heroBody: {
-    color: '#4D4B46',
-    fontSize: 15,
-    fontWeight: '800',
-    lineHeight: 23,
+    color: palette.textSecondary,
+    ...typography.body,
+  },
+  syncRow: {
+    marginTop: 12,
+    gap: 10,
+  },
+  syncHint: {
+    color: palette.textSecondary,
+    ...typography.bodySm,
+  },
+  syncMessage: {
+    color: palette.primary,
+    ...typography.bodySm,
     marginTop: 10,
   },
-  cardHead: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+  rankingCard: {
+    paddingTop: 14,
+  },
+  note: {
+    marginHorizontal: 20,
+    marginTop: 14,
+  },
+  shareCard: {
+    marginTop: 18,
+    gap: 12,
   },
   sectionTitle: {
-    color: palette.ink,
-    fontSize: 22,
-    fontWeight: '900',
+    color: palette.textPrimary,
+    ...typography.titleMd,
   },
-  rankRow: {
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: palette.line,
-    borderRadius: 16,
-    borderWidth: 2,
+  compareRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 10,
-    padding: 13,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  mine: {
-    borderColor: palette.ink,
-    backgroundColor: '#F5FAFF',
+  compareLabel: {
+    color: palette.textSecondary,
+    ...typography.body,
   },
-  rankBadge: {
-    backgroundColor: palette.yellow,
-    borderRadius: 15,
-    color: palette.ink,
-    fontSize: 15,
-    fontWeight: '900',
-    height: 30,
-    lineHeight: 30,
-    overflow: 'hidden',
-    textAlign: 'center',
-    width: 30,
+  compareValue: {
+    color: palette.chartBlue,
+    ...typography.numberLg,
   },
-  rankName: {
-    color: palette.ink,
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '900',
+  compareMuted: {
+    color: palette.textSecondary,
+    fontSize: 24,
   },
-  rankRate: {
-    color: palette.blue,
-    fontSize: 17,
-    fontWeight: '900',
-  },
-  memberRow: {
-    gap: 10,
-    marginTop: 16,
-  },
-  memberName: {
-    color: palette.ink,
-    fontSize: 16,
-    fontWeight: '900',
-  },
-  chatPreview: {
-    backgroundColor: '#F3F0E8',
-    borderRadius: 18,
-    marginHorizontal: 20,
+  familyCard: {
     marginTop: 18,
-    padding: 16,
   },
-  chatText: {
-    color: '#3C3933',
-    fontSize: 16,
-    fontWeight: '800',
-    lineHeight: 24,
+  progressRow: {
+    marginTop: 14,
+    gap: 8,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  progressLabel: {
+    color: palette.textPrimary,
+    ...typography.bodySm,
+  },
+  progressPercent: {
+    color: palette.textSecondary,
+    ...typography.label,
   },
 });

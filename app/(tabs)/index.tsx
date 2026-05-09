@@ -1,48 +1,74 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AuthCard } from '@/components/auth-card';
-import { Header, MascotCluster, MountainScene, ProgressBar, ScreenShell, SectionCard, SmallStat } from '@/components/fire-ui';
+import {
+  FireCountdown,
+  FireProgressBar,
+  FireMascot,
+  HandDrawnCard,
+  Header,
+  HighlightNote,
+  PillBadge,
+  ScreenShell,
+  SmallStat,
+} from '@/components/fire-ui';
 import { palette } from '@/constants/fire-theme';
-import { formatFireDistance, formatPercent } from '@/lib/fireCalculator';
-import { fireResult } from '@/lib/sampleData';
+import { typography } from '@/constants/typography';
+import { calculateFireResult, formatFireDistance, formatPercent } from '@/lib/fireCalculator';
+import { getHouseholdEyebrow } from '@/lib/householdInsights';
+import { useHouseholdStore } from '@/store/householdStore';
 
 export default function HomeScreen() {
+  const household = useHouseholdStore((state) => state.household);
+  const fireResult = calculateFireResult(household);
+
   return (
     <ScreenShell>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Header eyebrow="홈 대시보드" title={formatFireDistance(fireResult.monthsToFire)} />
+        <Header eyebrow={getHouseholdEyebrow(household)} title="FIRE까지" right={<FireMascot size={60} mood="goal" />} />
+
+        <HandDrawnCard style={styles.heroCard}>
+          <FireCountdown
+            subLabel="FIRE까지 🔥"
+            monthsText={formatFireDistance(fireResult.monthsToFire)}
+            speech="잘하고 있어요!"
+          />
+        </HandDrawnCard>
+
+        <HandDrawnCard style={styles.progressCard}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.sectionLabel}>달성률</Text>
+            <Text style={styles.progressValue}>{formatPercent(fireResult.achievementRate)}</Text>
+          </View>
+          <FireProgressBar value={fireResult.achievementRate} color={palette.primary} />
+          <View style={styles.statGrid}>
+            <SmallStat icon="south" label="이번 달 단축" value={`+${fireResult.savedMonthsThisMonth}개월`} accent={palette.softHighlight} />
+            <SmallStat icon="military-tech" label="크루 순위" value="상위 18%" accent={palette.softOrange} />
+          </View>
+        </HandDrawnCard>
+
+        <HighlightNote
+          emoji="📝"
+          text={`이번 달 저축률 ${formatPercent(fireResult.savingsRate)}, 크루 평균보다 6%p 높아요! 👍`}
+          style={styles.note}
+        />
 
         <AuthCard />
 
-        <SectionCard style={styles.countdownCard}>
-          <Text style={styles.cardLabel}>파이어까지 남은 시간</Text>
-          <ProgressBar value={fireResult.achievementRate} />
-          <View style={styles.metricRow}>
-            <Text style={styles.bigMetric}>{formatPercent(fireResult.achievementRate)}</Text>
-            <Text style={styles.metricLabel}>목표 달성률</Text>
+        <HandDrawnCard accent={palette.softCream} style={styles.storyCard} tilt={-1.5}>
+          <View style={styles.storyTop}>
+            <Text style={styles.storyTitle}>우리 가족, 언제 파이어 가능할까?</Text>
+            <PillBadge label="월간 자산 트래킹" />
           </View>
-          <View style={styles.rewardNote}>
-            <Text style={styles.rewardText}>이번 달 저축으로 {fireResult.savedMonthsThisMonth}개월 단축됐어요.</Text>
-          </View>
-        </SectionCard>
-
-        <SectionCard accent="#F4FBEF" style={styles.sceneCard}>
-          <MountainScene />
-        </SectionCard>
-
-        <View style={styles.statsRow}>
-          <SmallStat icon="savings" label="이번 달 저축률" value={formatPercent(fireResult.savingsRate)} />
-          <SmallStat icon="groups" label="크루 내 순위" value="3위" />
-        </View>
-
-        <SectionCard style={styles.onboardingCard}>
-          <Text style={styles.brand}>FIRE<Text style={styles.brandDot}>.</Text></Text>
-          <Text style={styles.onboardingTitle}>우리 가족, 언제 파이어 가능할까?</Text>
-          <Text style={styles.onboardingBody}>
-            가구원별 수입과 지출을 모아 은퇴 가능 시점을 계산하고, 매달 자산 변화로 여정을 다시 확인합니다.
+          <Text style={styles.storyBody}>
+            딱딱한 금융앱보다, 귀여운 불씨랑 같이 달리는 자산 여정. 숫자는 깔끔하게 보고 기분은 게임처럼 가져가요.
           </Text>
-          <MascotCluster />
-        </SectionCard>
+          <View style={styles.storyMascots}>
+            <FireMascot size={70} mood="winner" />
+            <FireMascot size={54} mood="saving" />
+            <FireMascot size={62} mood="goal" />
+          </View>
+        </HandDrawnCard>
       </ScrollView>
     </ScreenShell>
   );
@@ -50,82 +76,59 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: 112,
+    paddingBottom: 116,
   },
-  countdownCard: {
-    marginTop: 12,
+  heroCard: {
+    paddingTop: 20,
   },
-  cardLabel: {
-    color: palette.muted,
-    fontSize: 14,
-    fontWeight: '900',
-    marginBottom: 18,
+  progressCard: {
+    gap: 14,
   },
-  metricRow: {
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'flex-end',
+  },
+  sectionLabel: {
+    color: palette.textSecondary,
+    ...typography.label,
+  },
+  progressValue: {
+    color: palette.textPrimary,
+    ...typography.numberMd,
+  },
+  statGrid: {
     flexDirection: 'row',
     gap: 10,
-    marginTop: 18,
+    marginTop: 2,
   },
-  bigMetric: {
-    color: palette.ink,
-    fontSize: 58,
-    fontWeight: '900',
-    letterSpacing: 0,
-    lineHeight: 62,
-  },
-  metricLabel: {
-    color: palette.muted,
-    fontSize: 14,
-    fontWeight: '900',
-    paddingBottom: 10,
-  },
-  rewardNote: {
-    backgroundColor: '#F5F2EA',
-    borderRadius: 16,
-    marginTop: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  rewardText: {
-    color: palette.coral,
-    fontSize: 14,
-    fontWeight: '900',
-  },
-  sceneCard: {
-    padding: 12,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
+  note: {
     marginHorizontal: 20,
     marginTop: 14,
   },
-  onboardingCard: {
-    overflow: 'hidden',
+  storyCard: {
+    marginTop: 18,
   },
-  brand: {
-    color: palette.ink,
-    fontSize: 56,
-    fontWeight: '900',
-    letterSpacing: 0,
-    lineHeight: 60,
+  storyTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
   },
-  brandDot: {
-    color: palette.coral,
+  storyTitle: {
+    flex: 1,
+    color: palette.textPrimary,
+    ...typography.displayMd,
   },
-  onboardingTitle: {
-    color: palette.ink,
-    fontSize: 27,
-    fontWeight: '900',
-    lineHeight: 35,
+  storyBody: {
+    color: palette.textSecondary,
+    ...typography.body,
     marginTop: 12,
   },
-  onboardingBody: {
-    color: '#4D4B46',
-    fontSize: 16,
-    fontWeight: '700',
-    lineHeight: 25,
-    marginTop: 12,
+  storyMascots: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    marginTop: 16,
   },
 });

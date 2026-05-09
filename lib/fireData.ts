@@ -1,4 +1,5 @@
 import { FireResult, Household } from '@/lib/fireCalculator';
+import { FeedMascotMood, FeedPost, normalizeFeedMascotMood } from '@/lib/householdInsights';
 import { supabase } from '@/lib/supabase';
 
 export type SharedSnapshotPayload = {
@@ -6,6 +7,33 @@ export type SharedSnapshotPayload = {
   householdId?: string | null;
   yearMonth: string;
   fireResult: FireResult;
+};
+
+export type CrewMemberMetric = {
+  userId: string;
+  nickname: string;
+  savingsRate: number;
+  achievementRate: number;
+  targetYear: number | null;
+};
+
+export type CrewSummary = {
+  id: string;
+  name: string;
+  type: 'family' | 'anonymous';
+  fireType: string | null;
+  members: CrewMemberMetric[];
+};
+
+export type FeedPostPayload = {
+  userId: string;
+  crewId?: string | null;
+  authorNickname: string;
+  category: FeedPost['tag'];
+  title: string;
+  body?: string | null;
+  periodLabel?: string | null;
+  mascotMood?: FeedMascotMood;
 };
 
 export async function upsertProfile(userId: string, displayName?: string | null) {
@@ -89,4 +117,254 @@ export async function upsertSharedMonthlySnapshot({
   if (error) {
     throw error;
   }
+}
+
+export async function ensureDefaultCrew(userId: string, household: Household) {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data: existingCrew, error: existingCrewError } = await client
+    .from('crews')
+    .select('id, name, type, fire_type')
+    .eq('owner_id', userId)
+    .eq('type', 'family')
+    .limit(1)
+    .maybeSingle();
+
+  if (existingCrewError) {
+    throw existingCrewError;
+  }
+
+  if (existingCrew) {
+    return existingCrew.id;
+  }
+
+  const crewName = household.members.length > 1 ? '우리 가족 FIRE 크루' : '나의 FIRE 크루';
+  const fireType = household.type;
+  const { data, error } = await client
+    .from('crews')
+    .insert({
+      owner_id: userId,
+      name: crewName,
+      type: 'family',
+      fire_type: fireType,
+      updated_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data.id;
+}
+
+export async function upsertCrewMemberMetrics({
+  crewId,
+  userId,
+  nickname,
+  fireResult,
+}: {
+  crewId: string;
+  userId: string;
+  nickname: string;
+  fireResult: FireResult;
+}) {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { error } = await client.from('crew_members').upsert(
+    {
+      crew_id: crewId,
+      user_id: userId,
+      nickname,
+      savings_rate: Math.round(fireResult.savingsRate),
+      achievement_rate: Math.round(fireResult.achievementRate),
+      target_year: Number.isFinite(fireResult.monthsToFire) ? new Date().getFullYear() + Math.ceil(fireResult.monthsToFire / 12) : null,
+      updated_at: new Date().toISOString(),
+    },
+    {
+      onConflict: 'crew_id,user_id',
+    },
+  );
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function syncCrewMetrics({
+  userId,
+  nickname,
+  household,
+  fireResult,
+}: {
+  userId: string;
+  nickname: string;
+  household: Household;
+  fireResult: FireResult;
+}) {
+  const crewId = await ensureDefaultCrew(userId, household);
+  await upsertCrewMemberMetrics({
+    crewId,
+    userId,
+    nickname,
+    fireResult,
+  });
+
+  return crewId;
+}
+
+export async function fetchMyFamilyCrew(userId: string): Promise<CrewSummary | null> {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data: memberships, error: membershipError } = await client.from('crew_members').select('crew_id').eq('user_id', userId);
+
+  if (membershipError) {
+    throw membershipError;
+  }
+
+  const crewIds = memberships.map((membership) => membership.crew_id);
+
+  if (crewIds.length === 0) {
+    return null;
+  }
+
+  const { data: crews, error: crewError } = await client.from('crews').select('id, name, type, fire_type').in('id', crewIds).eq('type', 'family').limit(1);
+
+  if (crewError) {
+    throw crewError;
+  }
+
+  const crew = crews[0];
+
+  if (!crew) {
+    return null;
+  }
+
+  const { data: members, error: membersError } = await client
+    .from('crew_members')
+    .select('user_id, nickname, savings_rate, achievement_rate, target_year')
+    .eq('crew_id', crew.id)
+    .order('savings_rate', { ascending: false });
+
+  if (membersError) {
+    throw membersError;
+  }
+
+  return {
+    id: crew.id,
+    name: crew.name,
+    type: crew.type,
+    fireType: crew.fire_type,
+    members: members.map((member) => ({
+      userId: member.user_id,
+      nickname: member.nickname,
+      savingsRate: member.savings_rate,
+      achievementRate: member.achievement_rate,
+      targetYear: member.target_year,
+    })),
+  };
+}
+
+export async function createFeedPost({
+  userId,
+  crewId,
+  authorNickname,
+  category,
+  title,
+  body,
+  periodLabel,
+  mascotMood = 'saving',
+}: FeedPostPayload) {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data, error } = await client
+    .from('feed_posts')
+    .insert({
+      crew_id: crewId ?? null,
+      user_id: userId,
+      author_nickname: authorNickname,
+      category,
+      title,
+      body: body ?? null,
+      period_label: periodLabel ?? null,
+      mascot_mood: mascotMood,
+      updated_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data.id;
+}
+
+export async function fetchFeedPosts(userId: string): Promise<FeedPost[]> {
+  const client = supabase;
+
+  if (!client) {
+    throw new Error('Supabase is not configured.');
+  }
+
+  const { data: memberships, error: membershipError } = await client.from('crew_members').select('crew_id').eq('user_id', userId);
+
+  if (membershipError) {
+    throw membershipError;
+  }
+
+  const crewIds = memberships.map((membership) => membership.crew_id);
+
+  let query = client
+    .from('feed_posts')
+    .select('id, category, title, period_label, likes_count, comments_count, mascot_mood, created_at')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (crewIds.length > 0) {
+    query = query.in('crew_id', crewIds);
+  } else {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return data.map((post) => ({
+    id: post.id,
+    tag: normalizeFeedTag(post.category),
+    title: post.title,
+    meta: post.period_label ?? '#크루근황',
+    likes: post.likes_count,
+    comments: post.comments_count,
+    mascot: normalizeFeedMascotMood(post.mascot_mood),
+  }));
+}
+
+function normalizeFeedTag(value: string): FeedPost['tag'] {
+  if (value === '달성 후기' || value === '고민' || value === '팁') {
+    return value;
+  }
+
+  return '팁';
 }
